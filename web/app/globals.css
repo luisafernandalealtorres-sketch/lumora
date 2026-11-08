@@ -1,3 +1,7 @@
+/* Estilos de las pantallas antiguas. Van en una capa de menor prioridad para que los
+   componentes nuevos (CSS Modules) no hereden reglas de elemento como header, h2, section, ul o li.
+   Las reglas de abajo no se modificaron: solo se envolvieron en la capa. */
+@layer legacy {
 :root{
   --bg:#f3f6f5; --surface:#ffffff; --fg:#14201d; --muted:#5b6b66; --line:#dbe4e1;
   --accent:#0f766e; --accent-soft:#d7efeb; --warn:#b45309; --warn-soft:#fdecd2;
@@ -76,3 +80,16 @@ li:first-child{border-top:0;padding-top:0}
 .link{background:none;border:0;color:var(--muted);cursor:pointer;font:inherit;font-size:13px;padding:0;text-decoration:underline}
 .card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px;background:var(--bg)}
 .pre{white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Compatibilidad con el selector de tema manual (data-theme).
+   Sin el atributo estas reglas no se aplican, así que el comportamiento actual no cambia.
+   Los valores repiten exactamente las paletas clara y oscura de arriba. */
+:root[data-theme="light"]{
+  --bg:#f3f6f5; --surface:#ffffff; --fg:#14201d; --muted:#5b6b66; --line:#dbe4e1;
+  --accent:#0f766e; --accent-soft:#d7efeb; --warn:#b45309; --warn-soft:#fdecd2;
+  color-scheme:light}
+:root[data-theme="dark"]{
+  --bg:#0e1614; --surface:#16211e; --fg:#e6efec; --muted:#93a59f; --line:#26352f;
+  --accent:#4fd1c0; --accent-soft:#17342f; --warn:#f2b35c; --warn-soft:#3a2a12;
+  color-scheme:dark}
+}

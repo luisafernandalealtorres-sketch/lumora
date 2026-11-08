@@ -1,0 +1,191 @@
+/* Tokens de diseño de SECOND BRAIN (prefijo --ds-).
+ *
+ * - Los valores de la especificación (docs/design/03_HOME_DESIGN_SPEC.md) se usan tal cual.
+ * - Los marcados "derivado" no están en la especificación. Se eligieron y se miden con
+ *   web/tests/contraste.test.mjs (texto >= 4,5:1, controles >= 3:1).
+ * - Patrón de tres estados: la paleta clara vive en :root; la oscura se aplica cuando el
+ *   sistema es oscuro (salvo que el usuario fuerce claro) o cuando data-theme="dark".
+ * - color-scheme NO se declara en :root a propósito: así las pantallas antiguas conservan
+ *   exactamente su comportamiento actual.
+ * - Los componentes nuevos usan SOLO estos tokens. Ningún color escrito a mano. */
+
+:root {
+  /* ---- Color (paleta clara) ---- */
+  --ds-bg: #F5F4FA;
+  --ds-bg-2: #EDEBF6;                    /* derivado. Solo para rellenos; el texto secundario no va encima */
+  --ds-surface: #FFFFFF;
+  --ds-surface-raised: #FFFFFF;          /* derivado. En claro se distingue por sombra y borde */
+  --ds-text: #28223D;
+  --ds-text-2: #716B82;
+  --ds-primary: #7654CB;
+  --ds-on-primary: #FFFFFF;              /* derivado */
+  --ds-primary-soft: rgba(118, 84, 203, 0.08);
+  --ds-secondary: #2563EB;               /* derivado (D-F4) */
+  --ds-success: #15803D;                 /* derivado (D-F4) */
+  --ds-warning: #B45309;                 /* derivado (D-F4) */
+  --ds-danger: #B91C1C;                  /* derivado (D-F4) */
+  --ds-success-soft: rgba(21, 128, 61, 0.06);
+  --ds-warning-soft: rgba(180, 83, 9, 0.06);
+  --ds-danger-soft: rgba(185, 28, 28, 0.06);
+  --ds-border: rgba(40, 34, 61, 0.12);
+  --ds-border-strong: #8B859C;           /* bordes de controles de formulario (>= 3:1) */
+  --ds-focus: #7654CB;
+
+  /* ---- Frentes de diseño (propuesta; se aprueba viéndola en /laboratorio) ---- */
+  --ds-frente-tanku: #7654CB;
+  --ds-frente-ticketcode: #2563EB;
+  --ds-frente-personal: #0F766E;
+  --ds-frente-salud: #C2410C;
+  --ds-frente-familia: #BE185D;
+  --ds-frente-otros: #4F46E5;
+  --ds-frente-tanku-soft: rgba(118, 84, 203, 0.06);
+  --ds-frente-ticketcode-soft: rgba(37, 99, 235, 0.06);
+  --ds-frente-personal-soft: rgba(15, 118, 110, 0.06);
+  --ds-frente-salud-soft: rgba(194, 65, 12, 0.06);
+  --ds-frente-familia-soft: rgba(190, 24, 93, 0.06);
+  --ds-frente-otros-soft: rgba(79, 70, 229, 0.06);
+
+  /* ---- Encabezado: degradado abstracto azul-violeta (sin imagen ni paisaje) ---- */
+  --ds-grad-1: #E6DEFF;
+  --ds-grad-2: #DCDAFF;
+  --ds-grad-3: #D3E4FF;
+  --ds-grad-header: linear-gradient(120deg, var(--ds-grad-1) 0%, var(--ds-grad-2) 50%, var(--ds-grad-3) 100%);
+  --ds-glow: rgba(118, 84, 203, 0.12);   /* iluminación ambiental violeta */
+
+  /* ---- Elevación ---- */
+  --ds-shadow-1: 0 1px 2px rgba(40, 34, 61, 0.08);
+  --ds-shadow-2: 0 8px 24px rgba(40, 34, 61, 0.12);
+
+  /* ---- Forma ---- */
+  --ds-radius-sm: 8px;
+  --ds-radius-md: 12px;
+  --ds-radius-lg: 16px;
+  --ds-radius-pill: 999px;
+
+  /* ---- Espaciado (escala de 4 px) ---- */
+  --ds-space-1: 4px;
+  --ds-space-2: 8px;
+  --ds-space-3: 12px;
+  --ds-space-4: 16px;
+  --ds-space-5: 20px;
+  --ds-space-6: 24px;
+  --ds-space-8: 32px;
+  --ds-space-10: 40px;
+
+  /* ---- Tipografía (las fuentes las carga next/font en app/layout.js) ---- */
+  --ds-font-display: var(--font-display), 'Segoe UI', system-ui, sans-serif;
+  --ds-font-body: var(--font-body), 'Segoe UI', system-ui, sans-serif;
+  --ds-text-xs: 12px;
+  --ds-text-sm: 13px;
+  --ds-text-md: 15px;
+  --ds-text-lg: 17px;
+  --ds-text-xl: 20px;
+  --ds-text-2xl: 26px;
+  --ds-text-3xl: 32px;
+  --ds-leading-tight: 1.2;
+  --ds-leading-normal: 1.5;
+
+  /* ---- Movimiento ---- */
+  --ds-dur-fast: 120ms;
+  --ds-dur: 200ms;
+  --ds-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Paleta oscura: sistema oscuro, salvo que el usuario haya forzado claro. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ds-bg: #0B0B16;
+    --ds-bg-2: #111020;
+    --ds-surface: #19182B;
+    --ds-surface-raised: #242239;
+    --ds-text: #F8FAFC;
+    --ds-text-2: #A1A1B5;
+    --ds-primary: #A78BFA;
+    --ds-on-primary: #0B0B16;
+    --ds-primary-soft: rgba(167, 139, 250, 0.16);
+    --ds-secondary: #60A5FA;
+    --ds-success: #34D399;
+    --ds-warning: #FBBF24;
+    --ds-danger: #F87171;
+    --ds-success-soft: rgba(52, 211, 153, 0.16);
+    --ds-warning-soft: rgba(251, 191, 36, 0.16);
+    --ds-danger-soft: rgba(248, 113, 113, 0.16);
+    --ds-border: rgba(248, 250, 252, 0.10);
+    --ds-border-strong: #77759A;
+    --ds-focus: #A78BFA;
+    --ds-frente-tanku: #A78BFA;
+    --ds-frente-ticketcode: #60A5FA;
+    --ds-frente-personal: #2DD4BF;
+    --ds-frente-salud: #FB923C;
+    --ds-frente-familia: #F472B6;
+    --ds-frente-otros: #818CF8;
+    --ds-frente-tanku-soft: rgba(167, 139, 250, 0.16);
+    --ds-frente-ticketcode-soft: rgba(96, 165, 250, 0.16);
+    --ds-frente-personal-soft: rgba(45, 212, 191, 0.16);
+    --ds-frente-salud-soft: rgba(251, 146, 60, 0.16);
+    --ds-frente-familia-soft: rgba(244, 114, 182, 0.16);
+    --ds-frente-otros-soft: rgba(129, 140, 248, 0.16);
+    --ds-grad-1: #2E2570;
+    --ds-grad-2: #4C35B8;
+    --ds-grad-3: #2A5FC4;
+    --ds-glow: rgba(167, 139, 250, 0.28);
+    --ds-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --ds-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+
+/* Paleta oscura forzada por el usuario (mismos valores que el bloque anterior). */
+:root[data-theme="dark"] {
+  --ds-bg: #0B0B16;
+  --ds-bg-2: #111020;
+  --ds-surface: #19182B;
+  --ds-surface-raised: #242239;
+  --ds-text: #F8FAFC;
+  --ds-text-2: #A1A1B5;
+  --ds-primary: #A78BFA;
+  --ds-on-primary: #0B0B16;
+  --ds-primary-soft: rgba(167, 139, 250, 0.16);
+  --ds-secondary: #60A5FA;
+  --ds-success: #34D399;
+  --ds-warning: #FBBF24;
+  --ds-danger: #F87171;
+  --ds-success-soft: rgba(52, 211, 153, 0.16);
+  --ds-warning-soft: rgba(251, 191, 36, 0.16);
+  --ds-danger-soft: rgba(248, 113, 113, 0.16);
+  --ds-border: rgba(248, 250, 252, 0.10);
+  --ds-border-strong: #77759A;
+  --ds-focus: #A78BFA;
+  --ds-frente-tanku: #A78BFA;
+  --ds-frente-ticketcode: #60A5FA;
+  --ds-frente-personal: #2DD4BF;
+  --ds-frente-salud: #FB923C;
+  --ds-frente-familia: #F472B6;
+  --ds-frente-otros: #818CF8;
+  --ds-frente-tanku-soft: rgba(167, 139, 250, 0.16);
+  --ds-frente-ticketcode-soft: rgba(96, 165, 250, 0.16);
+  --ds-frente-personal-soft: rgba(45, 212, 191, 0.16);
+  --ds-frente-salud-soft: rgba(251, 146, 60, 0.16);
+  --ds-frente-familia-soft: rgba(244, 114, 182, 0.16);
+  --ds-frente-otros-soft: rgba(129, 140, 248, 0.16);
+  --ds-grad-1: #2E2570;
+  --ds-grad-2: #4C35B8;
+  --ds-grad-3: #2A5FC4;
+  --ds-glow: rgba(167, 139, 250, 0.28);
+  --ds-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ds-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+/* Claro forzado: los valores ya son los de :root; solo falta informar al navegador. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Movimiento reducido: sin transiciones ni animaciones. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ds-dur-fast: 0ms;
+    --ds-dur: 0ms;
+  }
+}

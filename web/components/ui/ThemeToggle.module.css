@@ -1,0 +1,41 @@
+.grupo {
+  display: inline-flex;
+  padding: var(--ds-space-1);
+  gap: var(--ds-space-1);
+  background: var(--ds-bg-2);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-pill);
+}
+
+.opcion {
+  font: inherit;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  font-weight: 500;
+  color: var(--ds-text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--ds-radius-pill);
+  padding: var(--ds-space-2) var(--ds-space-4);
+  min-height: 36px;
+  cursor: pointer;
+  transition: background var(--ds-dur-fast) var(--ds-ease), color var(--ds-dur-fast) var(--ds-ease);
+}
+
+.opcion:hover {
+  background: var(--ds-primary-soft);
+}
+
+.opcion:focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: 2px;
+}
+
+.activa {
+  background: var(--ds-primary);
+  color: var(--ds-on-primary);
+}
+
+.activa:hover {
+  background: var(--ds-primary);
+}
