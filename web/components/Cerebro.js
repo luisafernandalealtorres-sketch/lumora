@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import SelectorFrente from '@/components/SelectorFrente';
+import { filtrarPorFrente } from '@/lib/domain/frentesMap';
 
 const limpiarTags = s => [...new Set(s.split(',').map(t => t.trim().toLowerCase().replace(/^#/, '')).filter(Boolean))];
 const vacio = frente => ({ id: null, titulo: '', contenido: '', etiquetas: '', frente });
@@ -14,9 +16,10 @@ export default function Cerebro({ frentes, inicial }) {
   const [error, setError] = useState('');
 
   const nombre = slug => frentes.find(x => x.slug === slug)?.nombre ?? 'Sin frente';
-  const visibles = items.filter(n =>
-    (!frente || n.frente === frente) &&
-    (!q || `${n.titulo} ${n.contenido ?? ''} ${n.etiquetas.join(' ')}`.toLowerCase().includes(q.toLowerCase())));
+  // El filtro acepta un slug original o un grupo de diseño ("grupo:familia").
+  const porFrente = frente.startsWith('grupo:') ? filtrarPorFrente(items, frente.slice(6)) : frente ? items.filter(n => n.frente === frente) : items;
+  const visibles = porFrente.filter(n =>
+    (!q ||`${n.titulo} ${n.contenido ?? ''} ${n.etiquetas.join(' ')}`.toLowerCase().includes(q.toLowerCase())));
 
   async function guardar(e) {
     e.preventDefault();
@@ -53,10 +56,7 @@ export default function Cerebro({ frentes, inicial }) {
         <div><div className="date">Notas, ideas y apuntes</div><h1>Cerebro</h1></div>
         <div className="toolbar">
           <input id="c-buscar" type="search" placeholder="Buscar en todo" value={q} onChange={e => setQ(e.target.value)} />
-          <select id="c-frente" value={frente} onChange={e => setFrente(e.target.value)} aria-label="Frente">
-            <option value="">Todos los frentes</option>
-            {frentes.map(x => <option key={x.slug} value={x.slug}>{x.nombre}</option>)}
-          </select>
+          <SelectorFrente id="c-frente" value={frente} onChange={e => setFrente(e.target.value)} frentes={frentes} conGrupos textoTodos="Todos los frentes" />
         </div>
       </header>
 
@@ -82,9 +82,7 @@ export default function Cerebro({ frentes, inicial }) {
           <h2>{f.id ? 'Editar nota' : 'Nueva nota'}</h2>
           <form className="form" onSubmit={guardar}>
             <label>Frente
-              <select id="c-nf" value={f.frente} onChange={e => setF({ ...f, frente: e.target.value })}>
-                {frentes.map(x => <option key={x.slug} value={x.slug}>{x.nombre}</option>)}
-              </select>
+              <SelectorFrente id="c-nf" value={f.frente} onChange={e => setF({ ...f, frente: e.target.value })} frentes={frentes} />
             </label>
             <label>Título<input id="c-titulo" value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} /></label>
             <label>Contenido<textarea id="c-contenido" style={{ minHeight: 160 }} value={f.contenido} onChange={e => setF({ ...f, contenido: e.target.value })} /></label>

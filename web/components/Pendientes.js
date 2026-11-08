@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import SelectorFrente from '@/components/SelectorFrente';
 
 export default function Pendientes({ frentes, inicial, metas = [] }) {
   const supabase = createClient();
@@ -64,9 +65,7 @@ export default function Pendientes({ frentes, inicial, metas = [] }) {
       {!items.length && <p className="empty">Aún no tienes pendientes. Agrega el primero abajo.</p>}
       <form className="add" onSubmit={agregar}>
         <input type="text" id="nuevo" value={texto} onChange={e => setTexto(e.target.value)} placeholder="Nuevo pendiente" />
-        <select id="frente" value={frente} onChange={e => { setFrente(e.target.value); setMeta(''); }} aria-label="Frente">
-          {frentes.map(f => <option key={f.slug} value={f.slug}>{f.nombre}</option>)}
-        </select>
+        <SelectorFrente id="frente" value={frente} onChange={e => { setFrente(e.target.value); setMeta(''); }} frentes={frentes} />
         {metasDelFrente.length > 0 && (
           <select id="meta" value={meta} onChange={e => setMeta(e.target.value)} aria-label="Meta">
             <option value="">Sin meta</option>

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import SelectorFrente from '@/components/SelectorFrente';
 import { fechaCorta } from '@/lib/format';
 
 const ESTADOS = { activa: 'Activa', pausada: 'Pausada', lograda: 'Lograda' };
@@ -146,9 +147,7 @@ export default function Metas({ frentes, metas: m0, hitos: h0, tareas }) {
           <h2>Nueva meta</h2>
           <form className="form" onSubmit={crear}>
             <label>Frente
-              <select id="m-frente" value={f.frente} onChange={e => setF({ ...f, frente: e.target.value })}>
-                {frentes.map(x => <option key={x.slug} value={x.slug}>{x.nombre}</option>)}
-              </select>
+              <SelectorFrente id="m-frente" value={f.frente} onChange={e => setF({ ...f, frente: e.target.value })} frentes={frentes} />
             </label>
             <label>Meta<input id="m-titulo" value={f.titulo} onChange={e => setF({ ...f, titulo: e.target.value })} placeholder="Lanzar TANKU" /></label>
             <label>Por qué importa (opcional)<textarea id="m-desc" style={{ minHeight: 70 }} value={f.descripcion} onChange={e => setF({ ...f, descripcion: e.target.value })} /></label>

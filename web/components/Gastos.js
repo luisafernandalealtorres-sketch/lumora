@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import SelectorFrente from '@/components/SelectorFrente';
 import { cop, hoyBogota, mesActual, nombreMes, fechaCorta, esNegocio, CATEGORIAS } from '@/lib/format';
 
 export default function Gastos({ frentes, inicial }) {
@@ -108,9 +109,7 @@ export default function Gastos({ frentes, inicial }) {
                 </select>
               </label>
               <label>Frente
-                <select id="g-frente" value={f.frente} onChange={e => setF({ ...f, frente: e.target.value })}>
-                  {frentes.map(x => <option key={x.slug} value={x.slug}>{x.nombre}</option>)}
-                </select>
+                <SelectorFrente id="g-frente" value={f.frente} onChange={e => setF({ ...f, frente: e.target.value })} frentes={frentes} />
               </label>
             </div>
             <button className="btn" type="submit">Guardar gasto</button>

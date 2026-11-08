@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import SelectorFrente from '@/components/SelectorFrente';
 import { cop, hoyBogota, mesActual, nombreMes, fechaCorta, CATEGORIAS } from '@/lib/format';
 
 const num = v => Math.round(Number(String(v).replace(/[^\d]/g, '')));
@@ -210,7 +211,7 @@ export default function Finanzas({ userId, frentes, gastos, ingresos: i0, presup
                 </label>
               </div>
               <label>Frente
-                <select id="r-frente" value={fr.frente} onChange={e => setFr({ ...fr, frente: e.target.value })}>{frentes.map(x => <option key={x.slug} value={x.slug}>{x.nombre}</option>)}</select>
+                <SelectorFrente id="r-frente" value={fr.frente} onChange={e => setFr({ ...fr, frente: e.target.value })} frentes={frentes} />
               </label>
               <button className="btn sec" type="submit">Agregar pago recurrente</button>
             </form>
@@ -238,7 +239,7 @@ export default function Finanzas({ userId, frentes, gastos, ingresos: i0, presup
               </div>
               <label>Fuente<input id="i-fuente" value={fi.fuente} onChange={e => setFi({ ...fi, fuente: e.target.value })} placeholder="Evento, cliente, TANKU…" /></label>
               <label>Frente
-                <select id="i-frente" value={fi.frente} onChange={e => setFi({ ...fi, frente: e.target.value })}>{frentes.map(x => <option key={x.slug} value={x.slug}>{x.nombre}</option>)}</select>
+                <SelectorFrente id="i-frente" value={fi.frente} onChange={e => setFi({ ...fi, frente: e.target.value })} frentes={frentes} />
               </label>
               <button className="btn" type="submit">Guardar ingreso</button>
             </form>
