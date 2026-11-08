@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { verificar } from '@/lib/consulta';
 import Metas from '@/components/Metas';
 
 export const dynamic = 'force-dynamic';
@@ -11,5 +12,6 @@ export default async function Page() {
     supabase.from('hitos').select('*').order('creado_en'),
     supabase.from('pendientes').select('id,texto,hecho,meta_id').not('meta_id', 'is', null),
   ]);
+  verificar({ frentes: fr, metas: me, hitos: hi, pendientes: pe });
   return <Metas frentes={fr.data ?? []} metas={me.data ?? []} hitos={hi.data ?? []} tareas={pe.data ?? []} />;
 }

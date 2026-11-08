@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { verificar } from '@/lib/consulta';
 import Salud from '@/components/Salud';
 
 export const dynamic = 'force-dynamic';
@@ -13,6 +14,7 @@ export default async function Page() {
     supabase.from('medidas').select('*').order('fecha'),
     supabase.from('objetivos_salud').select('*').order('creado_en'),
   ]);
+  verificar({ habitos: h, registros: r, medidas: m, objetivos: o });
   return (
     <Salud
       userId={user.id}

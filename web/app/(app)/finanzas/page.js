@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { verificar } from '@/lib/consulta';
 import Finanzas from '@/components/Finanzas';
 import { mesActual } from '@/lib/format';
 
@@ -16,6 +17,7 @@ export default async function Page() {
     supabase.from('recurrentes').select('*').eq('activo', true).order('dia_mes'),
     supabase.from('deudas').select('*').order('creado_en'),
   ]);
+  verificar({ frentes: fr, gastos: ga, ingresos: ing, presupuestos: pre, recurrentes: rec, deudas: deu });
   return (
     <Finanzas
       userId={user.id}

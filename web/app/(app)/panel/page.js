@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { verificar } from '@/lib/consulta';
 import { cop, hoyBogota, mesActual, nombreMes, esNegocio, racha, CATEGORIAS } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
@@ -31,6 +32,7 @@ export default async function Panel() {
     supabase.from('notas').select('frente'),
   ]);
 
+  verificar({ frentes: fr, pendientes: pe, gastos: ga, jornadas: jo, biblioteca: bi, notas: no });
   const frentes = fr.data ?? [];
   const pend = pe.data ?? [];
   const gastos = ga.data ?? [];

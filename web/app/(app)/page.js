@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { verificar } from '@/lib/consulta';
 import Pendientes from '@/components/Pendientes';
 
 export const dynamic = 'force-dynamic';
@@ -19,6 +20,7 @@ export default async function Home() {
     supabase.from('resumen_dia').select('*').eq('fecha', hoy).maybeSingle(),
   ]);
 
+  verificar({ frentes: frentesR, metas: metasR, pendientes: pendR, agenda: agendaR, correos: correosR, resumen: resumenR });
   const frentes = frentesR.data ?? [];
   const pend = pendR.data ?? [];
   const agenda = agendaR.data ?? [];
