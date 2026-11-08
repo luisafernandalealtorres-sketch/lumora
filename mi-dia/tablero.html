@@ -1,0 +1,137 @@
+<title>Mi día</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: una columna en celular; en escritorio, agenda + correos a la izquierda, pendientes a la derecha. */
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --fg:#14201d; --muted:#5b6b66; --line:#dbe4e1;
+  --accent:#0f766e; --accent-soft:#d7efeb;
+  --warn:#b45309; --warn-soft:#fdecd2; --ok:#15803d;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --body:'Instrument Sans','Segoe UI',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1614; --surface:#16211e; --fg:#e6efec; --muted:#93a59f; --line:#26352f;
+  --accent:#4fd1c0; --accent-soft:#17342f; --warn:#f2b35c; --warn-soft:#3a2a12; --ok:#6ee7a0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1614; --surface:#16211e; --fg:#e6efec; --muted:#93a59f; --line:#26352f;
+  --accent:#4fd1c0; --accent-soft:#17342f; --warn:#f2b35c; --warn-soft:#3a2a12; --ok:#6ee7a0; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
+.date{color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.08em}
+.updated{color:var(--muted);font-size:13px}
+.summary{background:var(--accent-soft);border-radius:12px;padding:16px 18px;display:grid;gap:4px}
+.summary b{font-family:var(--display);font-size:16px}
+.cols{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:860px){.cols{grid-template-columns:1.1fr 1fr;align-items:start}}
+.stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+section{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}
+h2{font-family:var(--display);font-size:19px;margin:0 0 12px;font-weight:700;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+h2 small{font-family:var(--body);font-weight:500;color:var(--muted);font-size:13px}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+li{padding:10px 0;border-top:1px solid var(--line)}
+li:first-child{border-top:0;padding-top:0}
+.ev{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.time{font-variant-numeric:tabular-nums;font-weight:600;color:var(--accent);white-space:nowrap}
+.sub{color:var(--muted);font-size:13px}
+.mail{display:grid;gap:2px}
+.mail .from{font-weight:600}
+.pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:1px}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+.front{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.group + .group{margin-top:16px}
+label.todo{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:6px 0}
+label.todo input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent);flex:none}
+label.todo input:checked + span{text-decoration:line-through;color:var(--muted)}
+input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.empty{color:var(--muted);font-size:14px;margin:0}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="date" id="fecha">Domingo 8 de noviembre</div>
+      <h1>Mi día</h1>
+    </div>
+    <div class="updated">Actualizado 8 nov 2026</div>
+  </header>
+
+  <div class="summary">
+    <b>Hoy y mañana</b>
+    <span id="resumen"></span>
+  </div>
+
+  <div class="cols">
+    <div class="stack">
+      <section>
+        <h2>Agenda de hoy <small>domingo 8</small></h2>
+        <ul id="agenda"></ul>
+      </section>
+      <section>
+        <h2>Correos para revisar <small>últimos 7 días</small></h2>
+        <ul id="correos"></ul>
+        <p class="sub" style="margin:12px 0 0">No hay correos de personas esperando respuesta. Esto son avisos que pueden requerir acción.</p>
+      </section>
+    </div>
+    <section>
+      <h2>Pendientes <small id="progreso"></small></h2>
+      <div id="pendientes"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+// Este bloque lo regenera la tarea programada cada mañana.
+const DATA = {
+  resumen: "Hoy solo tienes el check semanal de Synergia a las 7:00 p. m. Mañana lunes 9 no tienes eventos en el calendario. Pendiente urgente: actualizar el método de pago de Google One.",
+  agenda: [
+    {hora:"7:00 p. m.", fin:"8:00 p. m.", titulo:"Check semanal Synergia", detalle:"Finanzas, inversiones, hogar y salud"}
+  ],
+  correos: [
+    {de:"Google Play", asunto:"Suscripción a Google One suspendida: pago rechazado con Visa-6703", resumen:"Actualiza el método de pago para no perder la suscripción.", tag:"Acción", warn:true},
+    {de:"PSE · Aportes en Línea", asunto:"Transacción aprobada $222.600", resumen:"Pago de planilla de aportes, 6 nov.", tag:"Pago"},
+    {de:"PSE · Aportes en Línea", asunto:"Transacción aprobada $218.900", resumen:"Otra planilla de aportes pagada el mismo día.", tag:"Pago"},
+    {de:"Nequi", asunto:"Notificación de acceso", resumen:"Inicio de sesión desde la web el 6 nov, 1:37 p. m. Confirma que fuiste tú.", tag:"Seguridad", warn:true},
+    {de:"Google", asunto:"Alerta de seguridad", resumen:"Claude for Google Calendar quedó con acceso a tu cuenta (el que acabas de conectar).", tag:"Informativo"}
+  ],
+  pendientes: [
+    {frente:"TICKETCODE · Producción de eventos", items:[]},
+    {frente:"TICKETCODE · EVE", items:[]},
+    {frente:"TANKU", items:[]},
+    {frente:"Personal", items:[]}
+  ]
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('resumen').textContent = DATA.resumen;
+$('agenda').innerHTML = DATA.agenda.length ? DATA.agenda.map(e =>
+  `<li class="ev"><span class="time">${esc(e.hora)}</span><div><div>${esc(e.titulo)}</div><div class="sub">hasta ${esc(e.fin)} · ${esc(e.detalle||'')}</div></div></li>`).join('')
+  : '<li><p class="empty">Sin eventos hoy.</p></li>';
+$('correos').innerHTML = DATA.correos.map(m =>
+  `<li class="mail"><div><span class="from">${esc(m.de)}</span><span class="pill ${m.warn?'warn':'info'}">${esc(m.tag)}</span></div><div>${esc(m.asunto)}</div><div class="sub">${esc(m.resumen)}</div></li>`).join('');
+
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem('midia-checks') || '{}'); } catch(e) {}
+function save(){ try { localStorage.setItem('midia-checks', JSON.stringify(saved)); } catch(e) {} }
+function renderTodos(){
+  let total = 0, done = 0;
+  $('pendientes').innerHTML = DATA.pendientes.map((g,gi) => {
+    const body = g.items.length ? g.items.map((t,ti) => {
+      const k = gi+'-'+t; total++; if (saved[k]) done++;
+      return `<label class="todo"><input type="checkbox" data-k="${esc(k)}" ${saved[k]?'checked':''}><span>${esc(t)}</span></label>`;
+    }).join('') : '<p class="empty">Sin pendientes. Escríbelos en mi-dia/pendientes.md o dímelos en el chat.</p>';
+    return `<div class="group"><p class="front">${esc(g.frente)}</p>${body}</div>`;
+  }).join('');
+  $('progreso').textContent = total ? `${done} de ${total}` : '';
+}
+$('pendientes').addEventListener('change', e => {
+  if (e.target.matches('input[data-k]')) { saved[e.target.dataset.k] = e.target.checked; save(); renderTodos(); }
+});
+renderTodos();
+</script>
