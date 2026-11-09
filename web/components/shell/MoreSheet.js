@@ -10,13 +10,15 @@ import { visibleEnShell } from './acciones';
 import { useShell } from './ShellProvider';
 import { useDialogo } from './useDialogo';
 import { useSalir } from './useSalir';
+import { useFrenteActivo } from './useFrenteActivo';
 import estilos from './MoreSheet.module.css';
 
 // Hoja inferior "Más" (móvil): todo lo que no cabe en la barra inferior, el tema y salir.
 // Diálogo modal: atrapa el foco, se cierra con Escape, con el botón o tocando el fondo.
 export default function MoreSheet({ desarrollo }) {
   const ruta = usePathname();
-  const { masAbierto, cerrarMas } = useShell();
+  const { masAbierto, cerrarMas, abrirAsistente } = useShell();
+  const { enlace } = useFrenteActivo();
   const panel = useRef(null);
   const { salir, saliendo, error } = useSalir();
   useDialogo(panel, masAbierto, cerrarMas);
@@ -47,10 +49,20 @@ export default function MoreSheet({ desarrollo }) {
               <h3 id={`mas-${g.id}`} className={estilos.rotulo}>{g.nombre}</h3>
               <ul className={estilos.lista}>
                 {g.elementos.map(e => {
-                  const activo = esActivo(e, ruta);
+                  const activo = esActivo(e, ruta, { desarrollo });
+                  if (e.accion) {
+                    return (
+                      <li key={e.id} className={estilos.item}>
+                        <button type="button" className={`${estilos.enlace} ${estilos.boton}`} onClick={abrirAsistente}>
+                          <Icon name={e.icono} size={20} />
+                          <span>{e.nombre}</span>
+                        </button>
+                      </li>
+                    );
+                  }
                   return (
                     <li key={e.id} className={estilos.item}>
-                      <Link href={e.ruta} className={`${estilos.enlace} ${e.padre ? estilos.hijo : ''} ${activo ? estilos.activo : ''}`} aria-current={activo ? 'page' : undefined}>
+                      <Link href={enlace(e.ruta)} className={`${estilos.enlace} ${e.padre ? estilos.hijo : ''} ${activo ? estilos.activo : ''}`} aria-current={activo ? 'page' : undefined}>
                         <Icon name={e.icono} size={20} />
                         <span>{e.nombre}</span>
                       </Link>

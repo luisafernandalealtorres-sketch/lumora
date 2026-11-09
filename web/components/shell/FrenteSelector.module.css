@@ -1,0 +1,51 @@
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 220px;
+}
+
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-3);
+  min-height: 40px;
+  padding: var(--ds-space-2) var(--ds-space-3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-md);
+  color: var(--ds-text);
+  font: inherit;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-md);
+  text-align: left;
+  cursor: pointer;
+}
+
+.opcion:hover { background: var(--ds-primary-soft); }
+.opcion:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+
+.sel {
+  background: var(--ds-primary-soft);
+  border-color: var(--ds-primary);
+  color: var(--ds-primary);
+  font-weight: 600;
+}
+
+.nombre { flex: 1; }
+
+.punto {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: var(--ds-radius-pill);
+  background: var(--ds-text-2);
+}
+
+.todos { background: transparent; border: 2px solid var(--ds-text-2); box-sizing: border-box; }
+.f_tanku { background: var(--ds-frente-tanku); }
+.f_ticketcode { background: var(--ds-frente-ticketcode); }
+.f_personal { background: var(--ds-frente-personal); }
+.f_salud { background: var(--ds-frente-salud); }
+.f_familia { background: var(--ds-frente-familia); }
+.f_otros { background: var(--ds-frente-otros); }

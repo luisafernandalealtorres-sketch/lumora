@@ -126,6 +126,16 @@
   font-weight: 500;
 }
 
+.boton {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-family: var(--ds-font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
 .hijo {
   margin-left: var(--ds-space-5);
   color: var(--ds-text-2);

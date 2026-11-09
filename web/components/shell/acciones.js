@@ -1,6 +1,5 @@
 // Acciones del shell que YA están disponibles. Un elemento de navegación con `accion`
 // (p. ej. el asistente) solo se muestra si su acción está aquí; así no hay botones muertos.
-// Fase 2.4 agrega 'asistente'.
 export const ACCIONES_DISPONIBLES = new Set([]);
 
 export function visibleEnShell(elemento) {

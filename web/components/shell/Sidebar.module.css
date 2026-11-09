@@ -117,6 +117,18 @@
   transition: background var(--ds-dur-fast) var(--ds-ease), color var(--ds-dur-fast) var(--ds-ease);
 }
 
+.boton {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-md);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+
 .enlace:hover {
   background: var(--ds-primary-soft);
   color: var(--ds-text);
