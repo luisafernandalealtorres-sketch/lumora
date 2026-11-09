@@ -19,7 +19,7 @@ export default function FrenteControl() {
         etiqueta={nombre ? `Frente: ${nombre}. Cambiar` : 'Frente: todos. Cambiar'}
         titulo="Frente"
         claseBoton={`${estilos.boton} ${nombre ? estilos.activo : ''}`}
-        boton={<><Icon name="layers" size={16} /><span className={estilos.texto}>{nombre ?? 'Todos los frentes'}</span><Icon name="chevronDown" size={14} /></>}
+        boton={<><Icon name="layers" size={16} /><span className={estilos.texto}>{nombre ?? 'Todos los frentes'}</span><Icon name="chevronDown" size={14} className={estilos.chevron} /></>}
       >
         {cerrar => (
           <div className={estilos.panel}>

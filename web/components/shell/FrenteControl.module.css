@@ -66,5 +66,12 @@
 /* Móvil: solo el icono (y el nombre si hay frente activo, abreviado por el ancho disponible) */
 @media (max-width: 767px) {
   .boton:not(.activo) .texto { display: none; }
-  .texto { max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+  .texto { max-width: 56px; overflow: hidden; text-overflow: ellipsis; }
+  .chevron { display: none; }
+  .boton { padding: 0 var(--ds-space-2); }
+}
+
+@media (max-width: 767px) {
+  .boton { min-height: 44px; }
+  .quitar { width: 44px; height: 44px; }
 }

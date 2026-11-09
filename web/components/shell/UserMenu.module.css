@@ -60,3 +60,7 @@
   font-weight: 500;
   cursor: pointer;
 }
+
+@media (max-width: 767px) {
+  .boton { width: 44px; height: 44px; }
+}

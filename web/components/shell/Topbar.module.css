@@ -51,11 +51,15 @@
 }
 
 @media (max-width: 1023px) {
-  .buscar { min-width: 0; width: 40px; padding: 0; justify-content: center; border-radius: var(--ds-radius-pill); }
+  .buscar { min-width: 0; width: 40px; min-height: 40px; padding: 0; justify-content: center; border-radius: var(--ds-radius-pill); }
   .buscarTexto, .atajo { display: none; }
 }
 
 @media (max-width: 767px) {
   .barra { padding-inline: var(--ds-space-4); gap: var(--ds-space-2); }
   .acciones { gap: var(--ds-space-1); }
+}
+
+@media (max-width: 767px) {
+  .buscar { width: 44px; min-height: 44px; }
 }

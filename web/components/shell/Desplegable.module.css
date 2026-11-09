@@ -30,3 +30,7 @@
   font-family: var(--ds-font-body);
   color: var(--ds-text);
 }
+
+@media (max-width: 767px) {
+  .boton { width: 44px; height: 44px; }
+}
