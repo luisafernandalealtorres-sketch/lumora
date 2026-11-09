@@ -10,13 +10,17 @@ import Skeleton from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import ErrorState from '@/components/ui/ErrorState';
 import { estadoDeConsulta } from '@/lib/ui/estados';
+import { crearIndicador, aFraccion } from '@/lib/domain/indicadores';
+import { fechaBogota, horaBogota, saludo, etiquetaFecha } from '@/lib/domain/fechas';
 import { NOMBRES_ICONOS } from '@/components/ui/icons';
 import TemaActivo from './TemaActivo';
 import DemoEstados from './DemoEstados';
 import {
   AVISO_DEMO, BARRAS_DEMO, BARRAS_FRENTES_DEMO, SLUGS_FRENTES, SLUG_DESCONOCIDO_DEMO,
-  ANILLOS_DEMO, ANILLOS_FRENTES_DEMO, SERIES_DEMO, CASOS_ESTADO_DEMO,
+  ANILLOS_DEMO, ANILLOS_FRENTES_DEMO, SERIES_DEMO, CASOS_ESTADO_DEMO, INDICADORES_DEMO,
 } from './demo';
+
+const TONO_ESTADO_INDICADOR = { ok: 'exito', parcial: 'advertencia', 'sin-datos': 'neutro', error: 'peligro' };
 import estilos from './laboratorio.module.css';
 
 // LABORATORIO DE DISEÑO. Solo desarrollo.
@@ -302,6 +306,44 @@ export default function Laboratorio() {
             </tbody>
           </table>
         </div>
+      </Seccion>
+
+      <Seccion id="lab-indicadores" titulo="Contrato de indicador (Life Pulse)">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>
+          Cada indicador de área explica su fórmula y sus fuentes. Si la muestra no alcanza el mínimo, el valor es <strong>null</strong> y
+          el anillo se dibuja como "sin datos". Un error nunca se presenta como "sin datos". Estas son las reglas del contrato, no las
+          fórmulas reales (esas se aprueban en la Fase 3). No existe un indicador global de equilibrio personal.
+        </p>
+        <div className={estilos.indicadores}>
+          {INDICADORES_DEMO.map(({ nota, ...entrada }) => {
+            const ind = crearIndicador(entrada);
+            return (
+              <Card key={ind.id} relleno="sm" variante="plana">
+                <div className={estilos.indicadorCuerpo}>
+                  <Ring valor={aFraccion(ind)} etiqueta={`Ejemplo de ${ind.nombre}`} tamano={72} grosor={8} />
+                  <div className={estilos.indicadorTexto}>
+                    <div className={estilos.fila}>
+                      <strong>{ind.nombre}</strong>
+                      <Chip tono={TONO_ESTADO_INDICADOR[ind.estado]} tamano="sm">{ind.estado}</Chip>
+                    </div>
+                    <p className={estilos.indicadorMeta}>Muestra {ind.muestra} de {ind.minimo} necesarias · valor {ind.valor === null ? 'null' : ind.valor}</p>
+                    <p className={estilos.indicadorMeta}>{nota}</p>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-fechas" titulo="Fechas (hora de Bogotá)">
+        <p className={estilos.texto2}>
+          Calculadas con la zona de Colombia, sin depender de la zona del equipo. Esto es el reloj real, no un dato de demostración.
+        </p>
+        <p className={estilos.parrafo}>
+          <strong>{saludo(horaBogota())}</strong> · {etiquetaFecha(fechaBogota())} · {fechaBogota()}
+        </p>
       </Seccion>
 
       <Seccion id="lab-texto" titulo="Texto sobre superficies">

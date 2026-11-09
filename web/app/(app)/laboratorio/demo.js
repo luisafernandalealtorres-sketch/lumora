@@ -77,3 +77,16 @@ export const CASOS_ESTADO_DEMO = [
   { descripcion: 'Respondió con un resultado 0 (es un dato)', entrada: { datos: 0 } },
   { descripcion: 'Registros, pero faltan datos de otra fuente', entrada: { datos: [1, 2], parcial: true } },
 ];
+
+// ---- Fase 1.5: contrato de indicador ----
+// Entradas de `crearIndicador`. Los textos de fórmula y fuentes son de ejemplo, no las fórmulas reales
+// de Life Pulse (esas se definen y aprueban en la Fase 3).
+const FORMULA_EJEMPLO = 'Ejemplo de fórmula: cómo se calcularía este indicador, explicado en una frase.';
+export const INDICADORES_DEMO = [
+  { id: 'finanzas', nombre: 'Finanzas', valor: 76.4, muestra: 5, minimo: 3, formula: FORMULA_EJEMPLO, fuentes: ['ejemplo: gastos', 'ejemplo: presupuestos'], nota: 'Muestra suficiente: estado ok' },
+  { id: 'salud', nombre: 'Salud', valor: 68, muestra: 6, minimo: 3, formula: FORMULA_EJEMPLO, fuentes: ['ejemplo: hábitos'], completo: false, nota: 'Faltan fuentes: estado parcial, conserva el valor' },
+  { id: 'metas', nombre: 'Metas', valor: 80, muestra: 1, minimo: 3, formula: FORMULA_EJEMPLO, fuentes: ['ejemplo: metas'], nota: 'Hay un número pero la muestra no alcanza: sin datos, valor null' },
+  { id: 'trabajo', nombre: 'Trabajo', valor: 90, muestra: 8, minimo: 3, formula: FORMULA_EJEMPLO, fuentes: ['ejemplo: pendientes'], error: true, nota: 'La lectura falló: error, nunca "sin datos"' },
+  { id: 'personal', nombre: 'Personal', valor: 0, muestra: 4, minimo: 3, formula: FORMULA_EJEMPLO, fuentes: ['ejemplo: pendientes'], nota: 'Un cero real con muestra suficiente es 0 %, no "sin datos"' },
+  { id: 'familia', nombre: 'Familia', valor: null, muestra: 0, minimo: 3, formula: FORMULA_EJEMPLO, fuentes: ['ejemplo: pendientes'], nota: 'Sin ningún dato: sin datos' },
+];
