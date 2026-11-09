@@ -6,6 +6,8 @@ import Topbar from './Topbar';
 import BottomNav from './BottomNav';
 import MoreSheet from './MoreSheet';
 import SearchPalette from './SearchPalette';
+import AssistantFloatingButton from './AssistantFloatingButton';
+import AssistantDrawer from './AssistantDrawer';
 import RouteEffects from './RouteEffects';
 import estilos from './AppShell.module.css';
 
@@ -29,7 +31,9 @@ export default function AppShell({ children }) {
           <BottomNav desarrollo={desarrollo} />
           <MoreSheet desarrollo={desarrollo} />
           <SearchPalette desarrollo={desarrollo} />
+          <AssistantDrawer />
         </Suspense>
+        <AssistantFloatingButton />
         <RouteEffects />
       </div>
     </ShellProvider>

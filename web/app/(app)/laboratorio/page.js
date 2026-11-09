@@ -13,6 +13,7 @@ import { estadoDeConsulta } from '@/lib/ui/estados';
 import { crearIndicador, aFraccion } from '@/lib/domain/indicadores';
 import { fechaBogota, horaBogota, saludo, etiquetaFecha } from '@/lib/domain/fechas';
 import { NOMBRES_ICONOS } from '@/components/ui/icons';
+import { ESTADOS_ASISTENTE, IDS_ESTADOS } from '@/lib/domain/asistente';
 import TemaActivo from './TemaActivo';
 import DemoEstados from './DemoEstados';
 import {
@@ -20,6 +21,7 @@ import {
   ANILLOS_DEMO, ANILLOS_FRENTES_DEMO, SERIES_DEMO, CASOS_ESTADO_DEMO, INDICADORES_DEMO,
 } from './demo';
 
+const TONO_ASISTENTE = { neutral: 'neutro', success: 'exito', info: 'primario', warning: 'advertencia', danger: 'peligro' };
 const TONO_ESTADO_INDICADOR = { ok: 'exito', parcial: 'advertencia', 'sin-datos': 'neutro', error: 'peligro' };
 import estilos from './laboratorio.module.css';
 
@@ -281,6 +283,25 @@ export default function Laboratorio() {
         <div className={estilos.dosColumnas}>
           <ErrorState detalle="Ejemplo de detalle técnico: permission denied for table notas" />
           <ErrorState compacto titulo="Ejemplo compacto" mensaje="No se pudo actualizar este bloque." />
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-asistente" titulo="Estados del asistente">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>
+          En el shell solo se alcanza "No conectado": la IA no está conectada y no hay respuestas simuladas. Los demás estados existen como lógica
+          (<code>lib/domain/asistente.js</code>) y se muestran aquí para validarlos antes de conectar el asistente.
+        </p>
+        <div className={estilos.dosColumnas}>
+          {IDS_ESTADOS.map(id => {
+            const e = ESTADOS_ASISTENTE[id];
+            return (
+              <div key={id}>
+                <Chip tono={TONO_ASISTENTE[e.tono]}>{e.etiqueta}</Chip>
+                <p className={estilos.texto2}>{e.descripcion} {e.permiteEnviar ? 'Permite enviar.' : 'No permite enviar.'}</p>
+              </div>
+            );
+          })}
         </div>
       </Seccion>
 
