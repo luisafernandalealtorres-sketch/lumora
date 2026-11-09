@@ -1,0 +1,68 @@
+.contenedor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+  min-width: 0;
+}
+
+.bloque {
+  position: relative;
+  overflow: hidden;
+  background: var(--ds-bg-2);
+  border-radius: var(--ds-radius-sm);
+}
+
+/* Brillo que cruza el bloque. */
+.bloque::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--ds-border), transparent);
+  transform: translateX(-100%);
+  animation: brillo 1.4s var(--ds-ease) infinite;
+}
+
+@keyframes brillo {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bloque::after {
+    animation: none;
+    display: none;
+  }
+}
+
+.linea {
+  width: 100%;
+  height: 14px;
+}
+
+.ultima {
+  width: 60%;
+}
+
+.recuadro {
+  width: 100%;
+  height: 96px;
+  border-radius: var(--ds-radius-md);
+}
+
+.circulo {
+  border-radius: var(--ds-radius-pill);
+}
+
+/* Texto solo para lectores de pantalla. */
+.soloLector {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

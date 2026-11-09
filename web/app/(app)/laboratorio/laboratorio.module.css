@@ -239,3 +239,114 @@
     gap: var(--ds-space-1);
   }
 }
+
+/* ---- Anillos ---- */
+.anillos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--ds-space-4);
+}
+
+.celdaAnillo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-space-2);
+  text-align: center;
+  min-width: 0;
+}
+
+.etiquetaCelda {
+  font-size: var(--ds-text-xs);
+  color: var(--ds-text-2);
+  overflow-wrap: anywhere;
+}
+
+/* ---- Minigráficas ---- */
+.series {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--ds-space-4);
+}
+
+.celdaSerie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+  min-width: 0;
+}
+
+/* ---- Esqueletos y estados ---- */
+.dosColumnas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--ds-space-5);
+  align-items: start;
+}
+
+.demoEstados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+}
+
+.botonDemo {
+  min-height: 40px;
+  padding: 0 var(--ds-space-4);
+  font: inherit;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-sm);
+  font-weight: 600;
+  color: var(--ds-text);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-pill);
+  cursor: pointer;
+}
+
+.botonDemo:focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: 2px;
+}
+
+.botonDemoActivo {
+  color: var(--ds-on-primary);
+  background: var(--ds-primary);
+  border-color: var(--ds-primary);
+}
+
+.contenidoDemo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-space-4);
+}
+
+/* ---- Tabla de derivación de estados ---- */
+.tablaEnvoltorio {
+  overflow-x: auto;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ds-text-sm);
+}
+
+.tabla th,
+.tabla td {
+  padding: var(--ds-space-2) var(--ds-space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--ds-border);
+  vertical-align: top;
+}
+
+.tabla th {
+  color: var(--ds-text-2);
+  font-weight: 600;
+}
+
+.codigo {
+  font-size: var(--ds-text-xs);
+  overflow-wrap: anywhere;
+}

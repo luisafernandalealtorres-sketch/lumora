@@ -1,0 +1,85 @@
+.anillo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  font-family: var(--ds-font-display);
+  color: var(--ds-text);
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.pista {
+  fill: none;
+  stroke: var(--ds-bg-2);
+}
+
+/* Sin datos: anillo discontinuo. No se parece a un 0 %. */
+.pistaSinDatos {
+  fill: none;
+  stroke: var(--ds-border-strong);
+  stroke-dasharray: 3 7;
+  stroke-linecap: round;
+}
+
+.arco {
+  fill: none;
+  transition: stroke-dasharray var(--ds-dur) var(--ds-ease);
+}
+
+.centro {
+  position: relative;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.t_neutro {
+  stroke: var(--ds-text-2);
+}
+
+.t_primario {
+  stroke: var(--ds-primary);
+}
+
+.t_exito {
+  stroke: var(--ds-success);
+}
+
+.t_advertencia {
+  stroke: var(--ds-warning);
+}
+
+.t_peligro {
+  stroke: var(--ds-danger);
+}
+
+.t_tanku {
+  stroke: var(--ds-frente-tanku);
+}
+
+.t_ticketcode {
+  stroke: var(--ds-frente-ticketcode);
+}
+
+.t_personal {
+  stroke: var(--ds-frente-personal);
+}
+
+.t_salud {
+  stroke: var(--ds-frente-salud);
+}
+
+.t_familia {
+  stroke: var(--ds-frente-familia);
+}
+
+.t_otros {
+  stroke: var(--ds-frente-otros);
+}

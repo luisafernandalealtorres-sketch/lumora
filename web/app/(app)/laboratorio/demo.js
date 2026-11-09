@@ -35,3 +35,45 @@ export const SLUGS_FRENTES = [
   'salud', 'jardin', 'salud-abuela', 'hama', 'crochet',
 ];
 export const SLUG_DESCONOCIDO_DEMO = 'frente-nuevo-sin-mapear';
+
+// ---- Fase 1.3: anillos, minigráficas y estados ----
+
+export const ANILLOS_DEMO = [
+  { etiqueta: 'Ejemplo: 78 %', valor: 0.78, tono: 'primario' },
+  { etiqueta: 'Ejemplo: 35 %', valor: 0.35, tono: 'advertencia' },
+  { etiqueta: 'Ejemplo: completo', valor: 1, tono: 'exito' },
+  { etiqueta: 'Ejemplo: cero real', valor: 0, tono: 'primario' },
+  { etiqueta: 'Ejemplo: sin datos (null)', valor: null, tono: 'primario' },
+  { etiqueta: 'Ejemplo: inválido (NaN)', valor: NaN, tono: 'primario' },
+];
+
+export const ANILLOS_FRENTES_DEMO = [
+  { etiqueta: 'Ejemplo de TANKU', valor: 0.82, tono: 'tanku' },
+  { etiqueta: 'Ejemplo de TICKETCODE', valor: 0.64, tono: 'ticketcode' },
+  { etiqueta: 'Ejemplo de Personal', valor: 0.5, tono: 'personal' },
+  { etiqueta: 'Ejemplo de Salud', valor: 0.7, tono: 'salud' },
+  { etiqueta: 'Ejemplo de Familia', valor: 0.3, tono: 'familia' },
+  { etiqueta: 'Ejemplo de Otros proyectos', valor: 0.58, tono: 'otros' },
+];
+
+export const SERIES_DEMO = [
+  { etiqueta: 'Ejemplo: sube', puntos: [2, 3, 3, 5, 6, 8, 9], tono: 'exito' },
+  { etiqueta: 'Ejemplo: baja', puntos: [9, 8, 8, 6, 5, 3, 2], tono: 'peligro' },
+  { etiqueta: 'Ejemplo: irregular', puntos: [4, 7, 3, 8, 5, 9, 6, 10], tono: 'primario' },
+  { etiqueta: 'Ejemplo: plana', puntos: [5, 5, 5, 5, 5], tono: 'neutro' },
+  { etiqueta: 'Ejemplo: con meta de referencia', puntos: [3, 4, 6, 5, 7, 8], tono: 'ticketcode', meta: 9 },
+  { etiqueta: 'Ejemplo: valores inválidos descartados', puntos: [1, NaN, 3, null, 4, 6], tono: 'salud' },
+  { etiqueta: 'Ejemplo: un solo punto', puntos: [4], tono: 'primario' },
+  { etiqueta: 'Ejemplo: vacía', puntos: [], tono: 'primario' },
+];
+
+// Entradas de una consulta ficticia. La tabla del laboratorio muestra qué estado deriva cada una.
+export const CASOS_ESTADO_DEMO = [
+  { descripcion: 'Consulta en curso', entrada: { cargando: true, datos: [] } },
+  { descripcion: 'Reintento tras un fallo', entrada: { cargando: true, error: 'fallo anterior', datos: [] } },
+  { descripcion: 'La consulta falló y no hay datos', entrada: { error: { message: 'permission denied' }, datos: [] } },
+  { descripcion: 'Respondió bien, pero no hay registros', entrada: { datos: [] } },
+  { descripcion: 'Respondió bien con registros', entrada: { datos: [1, 2, 3] } },
+  { descripcion: 'Respondió con un resultado 0 (es un dato)', entrada: { datos: 0 } },
+  { descripcion: 'Registros, pero faltan datos de otra fuente', entrada: { datos: [1, 2], parcial: true } },
+];

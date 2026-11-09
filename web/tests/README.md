@@ -17,6 +17,9 @@ npm test
 | `progreso.test.mjs` | Barras de progreso: un valor ausente o inválido es "Sin datos", nunca 0 % |
 | `tonos.test.mjs` | Tonos de chips y barras; un slug se traduce a su frente de diseño; un frente desconocido queda neutro |
 | `icons.test.mjs` | Estructura de los 34 iconos propios |
+| `anillo.test.mjs` | Geometría del anillo: un valor ausente o inválido no dibuja arco ni porcentaje; el radio siempre es positivo |
+| `sparkline.test.mjs` | Minigráfica: descarta valores no finitos sin interpolar, con menos de 2 valores es "insuficiente", coordenadas dentro del recuadro |
+| `estados.test.mjs` | Los cinco estados de un widget; **un error nunca se convierte en vacío**; un estado desconocido falla de forma visible |
 | `solo-tokens.test.mjs` | Los componentes nuevos usan solo tokens `--ds-*`: sin colores escritos a mano, sin variables inexistentes, sin `!important` |
 | `aislamiento-laboratorio.test.mjs` | El laboratorio no usa Supabase, nadie fuera de él importa sus datos de demostración y responde 404 en producción |
 

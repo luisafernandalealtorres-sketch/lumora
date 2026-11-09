@@ -1,0 +1,182 @@
+.contenedor {
+  display: block;
+  max-width: 100%;
+  flex: none;
+}
+
+.svg {
+  display: block;
+  height: auto;
+}
+
+.linea {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.meta {
+  stroke: var(--ds-text-2);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+/* Sin tendencia que dibujar: recuadro discontinuo con texto. */
+.insuficiente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 var(--ds-space-2);
+  border: 1px dashed var(--ds-border-strong);
+  border-radius: var(--ds-radius-sm);
+  color: var(--ds-text-2);
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-xs);
+  text-align: center;
+  line-height: var(--ds-leading-tight);
+}
+
+.linea_neutro {
+  stroke: var(--ds-text-2);
+}
+
+.area_neutro {
+  fill: var(--ds-bg-2);
+  stroke: none;
+}
+
+.punto_neutro {
+  fill: var(--ds-text-2);
+}
+
+.linea_primario {
+  stroke: var(--ds-primary);
+}
+
+.area_primario {
+  fill: var(--ds-primary-soft);
+  stroke: none;
+}
+
+.punto_primario {
+  fill: var(--ds-primary);
+}
+
+.linea_exito {
+  stroke: var(--ds-success);
+}
+
+.area_exito {
+  fill: var(--ds-success-soft);
+  stroke: none;
+}
+
+.punto_exito {
+  fill: var(--ds-success);
+}
+
+.linea_advertencia {
+  stroke: var(--ds-warning);
+}
+
+.area_advertencia {
+  fill: var(--ds-warning-soft);
+  stroke: none;
+}
+
+.punto_advertencia {
+  fill: var(--ds-warning);
+}
+
+.linea_peligro {
+  stroke: var(--ds-danger);
+}
+
+.area_peligro {
+  fill: var(--ds-danger-soft);
+  stroke: none;
+}
+
+.punto_peligro {
+  fill: var(--ds-danger);
+}
+
+.linea_tanku {
+  stroke: var(--ds-frente-tanku);
+}
+
+.area_tanku {
+  fill: var(--ds-frente-tanku-soft);
+  stroke: none;
+}
+
+.punto_tanku {
+  fill: var(--ds-frente-tanku);
+}
+
+.linea_ticketcode {
+  stroke: var(--ds-frente-ticketcode);
+}
+
+.area_ticketcode {
+  fill: var(--ds-frente-ticketcode-soft);
+  stroke: none;
+}
+
+.punto_ticketcode {
+  fill: var(--ds-frente-ticketcode);
+}
+
+.linea_personal {
+  stroke: var(--ds-frente-personal);
+}
+
+.area_personal {
+  fill: var(--ds-frente-personal-soft);
+  stroke: none;
+}
+
+.punto_personal {
+  fill: var(--ds-frente-personal);
+}
+
+.linea_salud {
+  stroke: var(--ds-frente-salud);
+}
+
+.area_salud {
+  fill: var(--ds-frente-salud-soft);
+  stroke: none;
+}
+
+.punto_salud {
+  fill: var(--ds-frente-salud);
+}
+
+.linea_familia {
+  stroke: var(--ds-frente-familia);
+}
+
+.area_familia {
+  fill: var(--ds-frente-familia-soft);
+  stroke: none;
+}
+
+.punto_familia {
+  fill: var(--ds-frente-familia);
+}
+
+.linea_otros {
+  stroke: var(--ds-frente-otros);
+}
+
+.area_otros {
+  fill: var(--ds-frente-otros-soft);
+  stroke: none;
+}
+
+.punto_otros {
+  fill: var(--ds-frente-otros);
+}

@@ -4,9 +4,19 @@ import Icon from '@/components/ui/Icon';
 import Card from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import ProgressBar from '@/components/ui/ProgressBar';
+import Ring from '@/components/ui/Ring';
+import Sparkline from '@/components/ui/Sparkline';
+import Skeleton from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
+import ErrorState from '@/components/ui/ErrorState';
+import { estadoDeConsulta } from '@/lib/ui/estados';
 import { NOMBRES_ICONOS } from '@/components/ui/icons';
 import TemaActivo from './TemaActivo';
-import { AVISO_DEMO, BARRAS_DEMO, BARRAS_FRENTES_DEMO, SLUGS_FRENTES, SLUG_DESCONOCIDO_DEMO } from './demo';
+import DemoEstados from './DemoEstados';
+import {
+  AVISO_DEMO, BARRAS_DEMO, BARRAS_FRENTES_DEMO, SLUGS_FRENTES, SLUG_DESCONOCIDO_DEMO,
+  ANILLOS_DEMO, ANILLOS_FRENTES_DEMO, SERIES_DEMO, CASOS_ESTADO_DEMO,
+} from './demo';
 import estilos from './laboratorio.module.css';
 
 // LABORATORIO DE DISEÑO. Solo desarrollo.
@@ -175,6 +185,122 @@ export default function Laboratorio() {
               <ProgressBar valor={b.valor} etiqueta={b.etiqueta} tono={b.tono} tamano="sm" mostrarValor />
             </div>
           ))}
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-anillos" titulo="Anillos de progreso">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>
+          Base de Life Pulse. Un valor ausente o inválido muestra un anillo discontinuo y "—", nunca un porcentaje inventado.
+        </p>
+        <div className={estilos.anillos}>
+          {ANILLOS_DEMO.map(a => (
+            <div className={estilos.celdaAnillo} key={a.etiqueta}>
+              <Ring valor={a.valor} etiqueta={a.etiqueta} tono={a.tono} />
+              <span className={estilos.etiquetaCelda}>{a.etiqueta}</span>
+            </div>
+          ))}
+        </div>
+        <p className={estilos.texto2}>Tamaños (56, 80 y 128 px) y contenido propio en el centro:</p>
+        <div className={estilos.fila}>
+          <Ring valor={0.62} etiqueta="Ejemplo pequeño" tamano={56} grosor={6} />
+          <Ring valor={0.62} etiqueta="Ejemplo mediano" tamano={80} grosor={8} />
+          <Ring valor={0.62} etiqueta="Ejemplo grande" tamano={128} grosor={12}>
+            <span>5/7</span>
+          </Ring>
+        </div>
+        <p className={estilos.texto2}>Un anillo por frente de diseño (colores propuestos, no definitivos):</p>
+        <div className={estilos.anillos}>
+          {ANILLOS_FRENTES_DEMO.map(a => (
+            <div className={estilos.celdaAnillo} key={a.etiqueta}>
+              <Ring valor={a.valor} etiqueta={a.etiqueta} tono={a.tono} tamano={72} grosor={8} />
+              <span className={estilos.etiquetaCelda}>{a.etiqueta}</span>
+            </div>
+          ))}
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-series" titulo="Minigráficas de tendencia">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>
+          Solo cuentan los números finitos y nada se interpola. Con menos de dos valores válidos aparece "Datos insuficientes".
+        </p>
+        <div className={estilos.series}>
+          {SERIES_DEMO.map(s => (
+            <div className={estilos.celdaSerie} key={s.etiqueta}>
+              <Sparkline puntos={s.puntos} etiqueta={s.etiqueta} tono={s.tono} meta={s.meta} ancho={180} alto={48} />
+              <span className={estilos.etiquetaCelda}>{s.etiqueta}</span>
+            </div>
+          ))}
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-esqueletos" titulo="Esqueletos de carga">
+        <p className={estilos.texto2}>
+          Se anuncian una sola vez como "Cargando". El brillo se apaga con el movimiento reducido del sistema.
+        </p>
+        <div className={estilos.dosColumnas}>
+          <Card titulo="Texto" nivel={3} relleno="sm"><Skeleton variante="texto" lineas={4} /></Card>
+          <Card titulo="Bloque" nivel={3} relleno="sm"><Skeleton variante="bloque" alto={88} /></Card>
+          <Card titulo="Círculo y línea" nivel={3} relleno="sm">
+            <div className={estilos.fila}>
+              <Skeleton variante="circulo" ancho={48} anunciar={false} />
+              <Skeleton variante="linea" ancho={140} anunciar={false} />
+            </div>
+          </Card>
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-vacio" titulo="Estado vacío">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>
+          Aún no hay nada que mostrar y todo funciona. Explica qué aparecerá y cómo agregar el primer dato. No es un error.
+        </p>
+        <div className={estilos.dosColumnas}>
+          <Card relleno="sm">
+            <EmptyState icono="target" titulo="Ejemplo: todavía no hay metas" descripcion="Cuando crees una, verás su avance aquí.">
+              <Chip tono="primario">Acción de ejemplo</Chip>
+            </EmptyState>
+          </Card>
+          <Card relleno="sm">
+            <EmptyState compacto icono="calendar" titulo="Ejemplo compacto: sin eventos hoy" descripcion="Tu agenda aparecerá aquí." />
+          </Card>
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-error" titulo="Estado de error">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>
+          Algo falló al leer. Se anuncia a los lectores de pantalla y es distinto del vacío: nunca debe verse como "sin datos".
+          El botón de reintento aparece en la demostración interactiva de abajo.
+        </p>
+        <div className={estilos.dosColumnas}>
+          <ErrorState detalle="Ejemplo de detalle técnico: permission denied for table notas" />
+          <ErrorState compacto titulo="Ejemplo compacto" mensaje="No se pudo actualizar este bloque." />
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-estados" titulo="Los cinco estados de un widget">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <DemoEstados />
+        <p className={estilos.texto2}>
+          Cómo se deriva el estado de una consulta (función <code>estadoDeConsulta</code>). Un error nunca se convierte en vacío:
+        </p>
+        <div className={estilos.tablaEnvoltorio}>
+          <table className={estilos.tabla}>
+            <thead>
+              <tr><th scope="col">Situación</th><th scope="col">Entrada</th><th scope="col">Estado</th></tr>
+            </thead>
+            <tbody>
+              {CASOS_ESTADO_DEMO.map(c => (
+                <tr key={c.descripcion}>
+                  <td>{c.descripcion}</td>
+                  <td><code className={estilos.codigo}>{JSON.stringify(c.entrada)}</code></td>
+                  <td><Chip tono={{ cargando: 'primario', vacio: 'neutro', error: 'peligro', parcial: 'advertencia', ok: 'exito' }[estadoDeConsulta(c.entrada)]} tamano="sm">{estadoDeConsulta(c.entrada)}</Chip></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Seccion>
 

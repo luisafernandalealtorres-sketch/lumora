@@ -191,4 +191,24 @@ for (const tema of ['claro', 'oscuro']) {
     const r = ratio(color(tema, '--ds-text'), color(tema, '--ds-bg-2'));
     assert.ok(r >= 4.5, r.toFixed(2));
   });
+
+  test(`${tema}: el texto de los avisos de error y de datos parciales se lee sobre su fondo, en superficie y en fondo (>= 4,5:1)`, () => {
+    for (const soft of ['--ds-danger-soft', '--ds-warning-soft']) {
+      for (const base of ['--ds-surface', '--ds-bg']) {
+        const fondo = mezclar(parseColor(temas[tema][soft]), { rgb: color(tema, base) });
+        const r = ratio(color(tema, '--ds-text'), fondo);
+        assert.ok(r >= 4.5, `--ds-text sobre ${soft} compuesto sobre ${base}: ${r.toFixed(2)}:1`);
+      }
+    }
+  });
+
+  test(`${tema}: el icono y el borde del estado de error se distinguen de la superficie (>= 3:1)`, () => {
+    const r = ratio(color(tema, '--ds-danger'), color(tema, '--ds-surface'));
+    assert.ok(r >= 3, r.toFixed(2));
+  });
+
+  test(`${tema}: el botón de reintento (texto sobre superficie y borde de control) cumple contraste`, () => {
+    assert.ok(ratio(color(tema, '--ds-text'), color(tema, '--ds-surface')) >= 4.5);
+    assert.ok(ratio(color(tema, '--ds-border-strong'), color(tema, '--ds-surface')) >= 3);
+  });
 }
