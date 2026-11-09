@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import SelectorFrente from '@/components/SelectorFrente';
+import { frenteInicial } from '@/lib/domain/formularios';
 import { fechaCorta } from '@/lib/format';
 
 const ESTADOS = { activa: 'Activa', pausada: 'Pausada', lograda: 'Lograda' };
@@ -13,7 +14,7 @@ export default function Metas({ frentes, metas: m0, hitos: h0, tareas }) {
   const [ver, setVer] = useState('activa');
   const [error, setError] = useState('');
   const [nuevoHito, setNuevoHito] = useState({});
-  const [f, setF] = useState({ titulo: '', descripcion: '', frente: frentes[0]?.slug ?? 'personal', fecha: '' });
+  const [f, setF] = useState({ titulo: '', descripcion: '', frente: frenteInicial('metaNueva'), fecha: '' });
 
   const progreso = m => {
     const hs = hitos.filter(h => h.meta_id === m.id);

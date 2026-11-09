@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import SelectorFrente from '@/components/SelectorFrente';
+import { frenteInicial } from '@/lib/domain/formularios';
 import { cop, hoyBogota, mesActual, nombreMes, fechaCorta, esNegocio, CATEGORIAS } from '@/lib/format';
 
 export default function Gastos({ frentes, inicial }) {
@@ -9,7 +10,7 @@ export default function Gastos({ frentes, inicial }) {
   const [items, setItems] = useState(inicial);
   const [mes, setMes] = useState(mesActual());
   const [error, setError] = useState('');
-  const [f, setF] = useState({ fecha: hoyBogota(), lugar: '', categoria: 'Comida', valor: '', frente: 'personal' });
+  const [f, setF] = useState({ fecha: hoyBogota(), lugar: '', categoria: 'Comida', valor: '', frente: frenteInicial('gastoNuevo') });
 
   const meses = useMemo(() => {
     const s = new Set([mesActual(), ...items.map(i => i.fecha.slice(0, 7))]);

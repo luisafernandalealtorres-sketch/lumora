@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import SelectorFrente from '@/components/SelectorFrente';
+import { frenteInicial } from '@/lib/domain/formularios';
 import { filtrarPorFrente } from '@/lib/domain/frentesMap';
 
 const limpiarTags = s => [...new Set(s.split(',').map(t => t.trim().toLowerCase().replace(/^#/, '')).filter(Boolean))];
@@ -12,7 +13,7 @@ export default function Cerebro({ frentes, inicial }) {
   const [items, setItems] = useState(inicial);
   const [frente, setFrente] = useState('');
   const [q, setQ] = useState('');
-  const [f, setF] = useState(vacio(frentes[0]?.slug ?? 'personal'));
+  const [f, setF] = useState(vacio(frenteInicial('notaNueva')));
   const [error, setError] = useState('');
 
   const nombre = slug => frentes.find(x => x.slug === slug)?.nombre ?? 'Sin frente';
@@ -46,7 +47,7 @@ export default function Cerebro({ frentes, inicial }) {
   }
 
   function editar(n) {
-    setF({ id: n.id, titulo: n.titulo, contenido: n.contenido ?? '', etiquetas: n.etiquetas.join(', '), frente: n.frente ?? frentes[0]?.slug });
+    setF({ id: n.id, titulo: n.titulo, contenido: n.contenido ?? '', etiquetas: n.etiquetas.join(', '), frente: n.frente ?? frenteInicial('notaEdicionSinFrente') });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

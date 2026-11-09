@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import SelectorFrente from '@/components/SelectorFrente';
+import { frenteInicial } from '@/lib/domain/formularios';
 
 export default function Pendientes({ frentes, inicial, metas = [] }) {
   const supabase = createClient();
   const router = useRouter();
   const [items, setItems] = useState(inicial);
   const [texto, setTexto] = useState('');
-  const [frente, setFrente] = useState(frentes[0]?.slug ?? 'personal');
+  const [frente, setFrente] = useState(frenteInicial('miDiaPendiente'));
   const [error, setError] = useState('');
   const [meta, setMeta] = useState('');
   const metasDelFrente = metas.filter(m => m.frente === frente);

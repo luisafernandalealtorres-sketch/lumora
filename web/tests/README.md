@@ -19,6 +19,9 @@ npm test
 | `icons.test.mjs` | Estructura de los 34 iconos propios |
 | `anillo.test.mjs` | Geometría del anillo: un valor ausente o inválido no dibuja arco ni porcentaje; el radio siempre es positivo |
 | `sparkline.test.mjs` | Minigráfica: descarta valores no finitos sin interpolar, con menos de 2 valores es "insuficiente", coordenadas dentro del recuadro |
+| `fechas.test.mjs` | Fechas con zona de Colombia con instantes fijos: cambio de día a las 05:00 UTC, semana desde el lunes, bisiestos, y resultado idéntico bajo 5 zonas horarias del sistema |
+| `indicadores.test.mjs` | Contrato de indicador: sin muestra suficiente el valor es null; un error nunca es "sin datos"; no existe un indicador global |
+| `formularios.test.mjs` | Frente inicial explícito de cada formulario (D-F3): valores aprobados, frentes existentes, y ningún componente usa `frentes[0]` |
 | `estados.test.mjs` | Los cinco estados de un widget; **un error nunca se convierte en vacío**; un estado desconocido falla de forma visible |
 | `solo-tokens.test.mjs` | Los componentes nuevos usan solo tokens `--ds-*`: sin colores escritos a mano, sin variables inexistentes, sin `!important` |
 | `aislamiento-laboratorio.test.mjs` | El laboratorio no usa Supabase, nadie fuera de él importa sus datos de demostración y responde 404 en producción |

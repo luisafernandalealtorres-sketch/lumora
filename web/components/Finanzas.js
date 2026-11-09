@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import SelectorFrente from '@/components/SelectorFrente';
+import { frenteInicial } from '@/lib/domain/formularios';
 import { cop, hoyBogota, mesActual, nombreMes, fechaCorta, CATEGORIAS } from '@/lib/format';
 
 const num = v => Math.round(Number(String(v).replace(/[^\d]/g, '')));
@@ -29,9 +30,9 @@ export default function Finanzas({ userId, frentes, gastos, ingresos: i0, presup
   const [deudas, setDeudas] = useState(d0);
   const [gastosMes, setGastosMes] = useState(gastos);
   const [error, setError] = useState('');
-  const [fi, setFi] = useState({ fecha: hoy, fuente: '', valor: '', frente: 'personal' });
+  const [fi, setFi] = useState({ fecha: hoy, fuente: '', valor: '', frente: frenteInicial('ingresoNuevo') });
   const [fp, setFp] = useState({ categoria: 'Comida', monto: '' });
-  const [fr, setFr] = useState({ nombre: '', valor: '', dia: '1', categoria: 'Servicios', frente: 'personal' });
+  const [fr, setFr] = useState({ nombre: '', valor: '', dia: '1', categoria: 'Servicios', frente: frenteInicial('recurrenteNuevo') });
   const [fd, setFd] = useState({ nombre: '', tipo: 'debo', total: '', saldo: '', cuota: '' });
   const [abono, setAbono] = useState({});
 
