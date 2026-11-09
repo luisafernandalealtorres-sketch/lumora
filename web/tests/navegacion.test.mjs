@@ -111,3 +111,10 @@ test('"Más" está activo cuando la ruta vive en la hoja', () => {
   assert.equal(masEstaActivo('/metas'), false);
   assert.equal(masEstaActivo('/'), false);
 });
+
+test('en producción el laboratorio no existe como elemento de navegación', () => {
+  assert.equal(itemDeRuta('/laboratorio', { desarrollo: false }), null);
+  assert.equal(itemDeRuta('/laboratorio').id, 'laboratorio');
+  assert.deepEqual(migas('/laboratorio', { desarrollo: false }), []);
+  assert.equal(tituloDeRuta('/laboratorio', undefined, { desarrollo: false }), 'Cerebro de Lu');
+});

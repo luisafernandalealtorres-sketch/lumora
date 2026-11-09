@@ -98,8 +98,18 @@ const fnContenido = function (label, modo) {
     if (b[i] === undefined || rows[i] === undefined) { dif.push({ i, nota: 'cantidad de elementos distinta' }); continue; }
     const A = b[i].split('|'), B = rows[i].split('|');
     const props = [];
-    for (let k = 1; k < A.length; k++) if (A[k] !== B[k]) props.push(P[k - 1] + ': ' + A[k] + ' -> ' + B[k]);
+    for (let k = 1; k < A.length; k++) {
+      // Los márgenes laterales de .wrap (margin: 0 auto) dependen del ancho del contenedor: se excluyen del elemento raíz
+      // y se verifican aparte (max-width 1040 px y centrado) más abajo.
+      if (i === 0 && /^margin(Left|Right)$/.test(P[k - 1])) continue;
+      if (A[k] !== B[k]) props.push(P[k - 1] + ': ' + A[k] + ' -> ' + B[k]);
+    }
+    if (!props.length) continue;
     dif.push({ i, el: A[0], cambios: props.slice(0, 4) });
   }
+  // Contrato de .wrap: ancho máximo 1040 px y centrado (márgenes laterales iguales).
+  const csw = getComputedStyle(wrap);
+  if (csw.maxWidth !== '1040px') dif.push({ el: '.wrap', cambios: ['maxWidth: ' + csw.maxWidth] });
+  if (csw.marginLeft !== csw.marginRight) dif.push({ el: '.wrap', cambios: ['descentrado: ' + csw.marginLeft + ' / ' + csw.marginRight] });
   return { etiqueta: label, elementosAntes: b.length, elementosAhora: rows.length, diferencias: dif.length, detalle: dif.slice(0, 12) };
 };

@@ -85,6 +85,16 @@
   --ds-leading-tight: 1.2;
   --ds-leading-normal: 1.5;
 
+  /* ---- Shell de navegación (Fase 2) ---- */
+  --ds-shell-sidebar: 248px;
+  --ds-shell-rail: 72px;
+  --ds-shell-topbar: 56px;
+  --ds-shell-bottomnav: 64px;
+  --ds-z-nav: 30;
+  --ds-z-topbar: 40;
+  --ds-z-overlay: 60;
+  --ds-z-dialog: 70;
+
   /* ---- Movimiento ---- */
   --ds-dur-fast: 120ms;
   --ds-dur: 200ms;

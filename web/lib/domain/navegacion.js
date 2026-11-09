@@ -57,25 +57,29 @@ function limpiar(ruta) {
   return sinQuery.length > 1 ? sinQuery.replace(/\/+$/, '') : sinQuery;
 }
 
-/** Elemento de navegación de una ruta (coincidencia exacta o por prefijo de segmento). null si no hay. */
-export function itemDeRuta(ruta) {
+/**
+ * Elemento de navegación de una ruta (coincidencia exacta o por prefijo de segmento). null si no hay.
+ * Con `desarrollo: false` los elementos solo de desarrollo (el laboratorio) no existen.
+ */
+export function itemDeRuta(ruta, { desarrollo = true } = {}) {
   const r = limpiar(ruta);
-  const exacto = ELEMENTOS.find(e => e.ruta === r);
+  const candidatos = ELEMENTOS.filter(e => desarrollo || !e.soloDesarrollo);
+  const exacto = candidatos.find(e => e.ruta === r);
   if (exacto) return exacto;
-  return ELEMENTOS.filter(e => e.ruta && e.ruta !== '/' && r.startsWith(e.ruta + '/'))
+  return candidatos.filter(e => e.ruta && e.ruta !== '/' && r.startsWith(e.ruta + '/'))
     .sort((a, b) => b.ruta.length - a.ruta.length)[0] ?? null;
 }
 
 /** ¿Está activo este elemento en la ruta actual? `/` solo es activo en `/`. */
-export function esActivo(elemento, ruta) {
+export function esActivo(elemento, ruta, opciones) {
   if (!elemento || !elemento.ruta) return false;
-  const actual = itemDeRuta(ruta);
+  const actual = itemDeRuta(ruta, opciones);
   return !!actual && actual.id === elemento.id;
 }
 
 /** Migas de pan [{nombre, ruta?}] de una ruta. Vacío si la ruta no es de la app. */
-export function migas(ruta) {
-  const it = itemDeRuta(ruta);
+export function migas(ruta, opciones) {
+  const it = itemDeRuta(ruta, opciones);
   if (!it) return [];
   const grupo = GRUPOS.find(g => g.id === it.grupo);
   const cadena = [];
@@ -89,13 +93,13 @@ export function migas(ruta) {
 }
 
 /** Título del documento según la ruta. */
-export function tituloDeRuta(ruta, base = 'Cerebro de Lu') {
-  const it = itemDeRuta(ruta);
+export function tituloDeRuta(ruta, base = 'Cerebro de Lu', opciones) {
+  const it = itemDeRuta(ruta, opciones);
   return it && it.id !== 'mi-dia' ? `${it.nombre} · ${base}` : base;
 }
 
 /** ¿La hoja "Más" contiene la ruta actual? (para marcar "Más" como activo). */
 export function masEstaActivo(ruta, { desarrollo = false } = {}) {
-  const it = itemDeRuta(ruta);
+  const it = itemDeRuta(ruta, { desarrollo });
   return !!it && elementosMas({ desarrollo }).some(e => e.id === it.id);
 }

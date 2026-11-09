@@ -1,0 +1,65 @@
+.barra {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .barra {
+    display: block;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--ds-z-nav);
+    background: var(--ds-surface);
+    border-top: 1px solid var(--ds-border);
+    padding-bottom: env(safe-area-inset-bottom);
+    font-family: var(--ds-font-body);
+  }
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.item {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.acceso {
+  width: 100%;
+  min-height: var(--ds-shell-bottomnav);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--ds-space-2) var(--ds-space-1);
+  background: transparent;
+  border: 0;
+  color: var(--ds-text-2);
+  text-decoration: none;
+  font: inherit;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-xs);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.acceso:focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: -4px;
+  border-radius: var(--ds-radius-md);
+}
+
+.activo {
+  color: var(--ds-primary);
+  font-weight: 600;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .acceso { min-height: 52px; flex-direction: row; justify-content: center; gap: var(--ds-space-2); }
+}

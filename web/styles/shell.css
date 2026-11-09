@@ -1,0 +1,7 @@
+/* CSS global mínimo del shell.
+   El <body> heredado trae un relleno (24px 16px 48px) para las pantallas antiguas. Con el shell, ese
+   relleno lo pone la columna de contenido, así que se anula SOLO cuando el shell está presente.
+   /login no usa el shell y conserva su relleno. */
+body:has([data-shell]) {
+  padding: 0;
+}

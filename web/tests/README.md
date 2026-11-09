@@ -24,7 +24,12 @@ npm test
 | `formularios.test.mjs` | Frente inicial explícito de cada formulario (D-F3): valores aprobados, frentes existentes, y ningún componente usa `frentes[0]` |
 | `estados.test.mjs` | Los cinco estados de un widget; **un error nunca se convierte en vacío**; un estado desconocido falla de forma visible |
 | `solo-tokens.test.mjs` | Los componentes nuevos usan solo tokens `--ds-*`: sin colores escritos a mano, sin variables inexistentes, sin `!important` |
-| `aislamiento-laboratorio.test.mjs` | El laboratorio no usa Supabase, nadie fuera de él importa sus datos de demostración y responde 404 en producción |
+| `aislamiento-laboratorio.test.mjs` | El laboratorio no usa Supabase, nadie fuera de él importa sus datos de demostración y responde 404 en producción (la navegación puede enlazarlo solo como elemento de desarrollo) |
+| `navegacion.test.mjs` | Las 9 rutas de negocio, grupos, iconos, migas, activo exacto, título y barra móvil (Fase 2) |
+| `busqueda.test.mjs` | Búsqueda de navegación sin acentos ni mayúsculas, por palabras clave y estable en empates |
+| `frenteActivo.test.mjs` | Frente en la URL (`?frente=`): ids válidos, conservación de parámetros; ningún módulo aplica el filtro todavía |
+| `asistente.test.mjs` | Estados del asistente; "no conectado" no permite enviar; estado desconocido = error |
+| `shell-aislamiento.test.mjs` | El shell no consulta datos; solo `useSalir` usa Supabase (cierre de sesión); el layout usa el shell y conserva `.wrap`; el CSS global está acotado a `[data-shell]` |
 
 Cada fase nueva con lógica pura debe agregar su archivo `*.test.mjs` aquí.
 Requiere Node 20 o superior.
