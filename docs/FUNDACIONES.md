@@ -31,7 +31,7 @@ Lo que construyó la Fase 1 (commits `de5e395` a la 1.5) y cómo usarlo. Es la b
 ## 3. Tema claro, oscuro y sistema
 - Preferencia en `localStorage` (`sb-theme`: `light`, `dark` o ausente = sistema).
 - Un script síncrono en `<head>` aplica `data-theme` antes del primer pintado (sin parpadeo).
-- `components/ui/ThemeToggle` es el selector (radiogroup con teclado). Todavía no está en el menú: entra con el shell (Fase 2).
+- `components/ui/ThemeToggle` es el selector (radiogroup con teclado). Desde la Fase 2 está en el shell (barra lateral, menú de cuenta y hoja "Más"); ver docs/SHELL.md.
 - Las pantallas antiguas siguen el mismo atributo mediante una regla de compatibilidad en `globals.css`.
 
 ## 4. Componentes (`web/components/ui`)
