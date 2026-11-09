@@ -178,4 +178,17 @@ for (const tema of ['claro', 'oscuro']) {
       assert.ok(r >= 4.5, `${g}: ${r.toFixed(2)}:1`);
     }
   });
+
+  test(`${tema}: el relleno de cada tono de barra se distingue de su pista (>= 3:1)`, () => {
+    const rellenos = ['--ds-text-2', '--ds-primary', '--ds-success', '--ds-warning', '--ds-danger', ...FRENTES.map(f => `--ds-frente-${f}`)];
+    for (const fg of rellenos) {
+      const r = ratio(color(tema, fg), color(tema, '--ds-bg-2'));
+      assert.ok(r >= 3, `${fg} sobre la pista (--ds-bg-2): ${r.toFixed(2)}:1`);
+    }
+  });
+
+  test(`${tema}: el texto de un chip neutro se lee sobre su fondo (>= 4,5:1)`, () => {
+    const r = ratio(color(tema, '--ds-text'), color(tema, '--ds-bg-2'));
+    assert.ok(r >= 4.5, r.toFixed(2));
+  });
 }

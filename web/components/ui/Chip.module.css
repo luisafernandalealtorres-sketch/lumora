@@ -1,0 +1,78 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-1);
+  max-width: 100%;
+  font-family: var(--ds-font-body);
+  font-weight: 600;
+  line-height: var(--ds-leading-tight);
+  white-space: nowrap;
+  border-radius: var(--ds-radius-pill);
+}
+
+.s_md {
+  padding: var(--ds-space-1) var(--ds-space-3);
+  font-size: var(--ds-text-sm);
+}
+
+.s_sm {
+  padding: 2px var(--ds-space-2);
+  font-size: var(--ds-text-xs);
+}
+
+/* Estados */
+.t_neutro {
+  color: var(--ds-text);
+  background: var(--ds-bg-2);
+}
+
+.t_primario {
+  color: var(--ds-primary);
+  background: var(--ds-primary-soft);
+}
+
+.t_exito {
+  color: var(--ds-success);
+  background: var(--ds-success-soft);
+}
+
+.t_advertencia {
+  color: var(--ds-warning);
+  background: var(--ds-warning-soft);
+}
+
+.t_peligro {
+  color: var(--ds-danger);
+  background: var(--ds-danger-soft);
+}
+
+/* Frentes de diseño (colores en propuesta; se editan en tokens.css) */
+.t_tanku {
+  color: var(--ds-frente-tanku);
+  background: var(--ds-frente-tanku-soft);
+}
+
+.t_ticketcode {
+  color: var(--ds-frente-ticketcode);
+  background: var(--ds-frente-ticketcode-soft);
+}
+
+.t_personal {
+  color: var(--ds-frente-personal);
+  background: var(--ds-frente-personal-soft);
+}
+
+.t_salud {
+  color: var(--ds-frente-salud);
+  background: var(--ds-frente-salud-soft);
+}
+
+.t_familia {
+  color: var(--ds-frente-familia);
+  background: var(--ds-frente-familia-soft);
+}
+
+.t_otros {
+  color: var(--ds-frente-otros);
+  background: var(--ds-frente-otros-soft);
+}

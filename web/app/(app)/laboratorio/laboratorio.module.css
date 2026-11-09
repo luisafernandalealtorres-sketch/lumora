@@ -158,3 +158,84 @@
 .degradadoTexto {
   margin: var(--ds-space-1) 0 0;
 }
+
+/* ---- Iconos ---- */
+.iconos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: var(--ds-space-2);
+}
+
+.celdaIcono {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-space-2);
+  padding: var(--ds-space-3) var(--ds-space-1);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md);
+  color: var(--ds-text);
+  min-width: 0;
+}
+
+.icoPrimario { color: var(--ds-primary); display: inline-flex; }
+.icoExito { color: var(--ds-success); display: inline-flex; }
+.icoAdvertencia { color: var(--ds-warning); display: inline-flex; }
+.icoPeligro { color: var(--ds-danger); display: inline-flex; }
+
+/* ---- Tarjetas ---- */
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--ds-space-4);
+  align-items: start;
+}
+
+.parrafo {
+  margin: 0;
+  color: var(--ds-text-2);
+  font-size: var(--ds-text-sm);
+}
+
+/* ---- Chips de frente ---- */
+.listaFrentes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--ds-space-3);
+}
+
+.filaFrente {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2);
+  min-width: 0;
+}
+
+/* ---- Barras ---- */
+.barras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+}
+
+.barraFila {
+  display: grid;
+  grid-template-columns: minmax(120px, 280px) 1fr;
+  align-items: center;
+  gap: var(--ds-space-3);
+  min-width: 0;
+}
+
+.barraEtiqueta {
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .barraFila {
+    grid-template-columns: 1fr;
+    gap: var(--ds-space-1);
+  }
+}

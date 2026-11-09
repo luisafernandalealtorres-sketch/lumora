@@ -13,6 +13,12 @@ npm test
 |---|---|
 | `frentesMap.test.mjs` | El mapeo visual de frentes: seis frentes, asignación aprobada, filtros con varios slugs, "Sin asignar" sin pérdida de registros, sin mutar datos |
 | `consulta.test.mjs` | Que un error real de consulta se distinga de un estado vacío |
+| `contraste.test.mjs` | Valores de la especificación, estructura de temas y contraste WCAG de `styles/tokens.css` en claro y oscuro |
+| `progreso.test.mjs` | Barras de progreso: un valor ausente o inválido es "Sin datos", nunca 0 % |
+| `tonos.test.mjs` | Tonos de chips y barras; un slug se traduce a su frente de diseño; un frente desconocido queda neutro |
+| `icons.test.mjs` | Estructura de los 34 iconos propios |
+| `solo-tokens.test.mjs` | Los componentes nuevos usan solo tokens `--ds-*`: sin colores escritos a mano, sin variables inexistentes, sin `!important` |
+| `aislamiento-laboratorio.test.mjs` | El laboratorio no usa Supabase, nadie fuera de él importa sus datos de demostración y responde 404 en producción |
 
 Cada fase nueva con lógica pura debe agregar su archivo `*.test.mjs` aquí.
 Requiere Node 20 o superior.

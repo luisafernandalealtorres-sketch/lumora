@@ -1,6 +1,12 @@
 import { notFound } from 'next/navigation';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import Icon from '@/components/ui/Icon';
+import Card from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
+import ProgressBar from '@/components/ui/ProgressBar';
+import { NOMBRES_ICONOS } from '@/components/ui/icons';
 import TemaActivo from './TemaActivo';
+import { AVISO_DEMO, BARRAS_DEMO, BARRAS_FRENTES_DEMO, SLUGS_FRENTES, SLUG_DESCONOCIDO_DEMO } from './demo';
 import estilos from './laboratorio.module.css';
 
 // LABORATORIO DE DISEÑO. Solo desarrollo.
@@ -17,9 +23,8 @@ const ACENTOS = [
   ['--ds-primary', 'Primario'], ['--ds-on-primary', 'Sobre primario'], ['--ds-secondary', 'Secundario'],
   ['--ds-success', 'Éxito'], ['--ds-warning', 'Advertencia'], ['--ds-danger', 'Error'],
 ];
-const FRENTES = [
-  ['tanku', 'TANKU'], ['ticketcode', 'TICKETCODE'], ['personal', 'Personal'],
-  ['salud', 'Salud'], ['familia', 'Familia'], ['otros', 'Otros proyectos'],
+const TONOS_ESTADO = [
+  ['neutro', 'Neutro'], ['primario', 'Primario'], ['exito', 'Éxito'], ['advertencia', 'Advertencia'], ['peligro', 'Error'],
 ];
 
 function Muestras({ lista }) {
@@ -36,6 +41,15 @@ function Muestras({ lista }) {
   );
 }
 
+function Seccion({ id, titulo, children }) {
+  return (
+    <section className={estilos.seccion} aria-labelledby={id}>
+      <h2 className={estilos.h2} id={id}>{titulo}</h2>
+      {children}
+    </section>
+  );
+}
+
 export default function Laboratorio() {
   if (process.env.NODE_ENV === 'production') notFound();
 
@@ -47,43 +61,124 @@ export default function Laboratorio() {
 
       <h1 className={estilos.h1}>Laboratorio</h1>
 
-      <section className={estilos.seccion} aria-labelledby="lab-tema">
-        <h2 className={estilos.h2} id="lab-tema">Tema</h2>
+      <Seccion id="lab-tema" titulo="Tema">
         <p className={estilos.texto2}>Elige claro, oscuro o sistema. La preferencia se recuerda en este navegador.</p>
         <div className={estilos.fila}>
           <ThemeToggle />
           <TemaActivo />
         </div>
-      </section>
+      </Seccion>
 
-      <section className={estilos.seccion} aria-labelledby="lab-neutros">
-        <h2 className={estilos.h2} id="lab-neutros">Neutros</h2>
+      <Seccion id="lab-neutros" titulo="Neutros">
         <Muestras lista={NEUTROS} />
-      </section>
+      </Seccion>
 
-      <section className={estilos.seccion} aria-labelledby="lab-acentos">
-        <h2 className={estilos.h2} id="lab-acentos">Acentos y estados</h2>
+      <Seccion id="lab-acentos" titulo="Acentos y estados">
         <Muestras lista={ACENTOS} />
-      </section>
+      </Seccion>
 
-      <section className={estilos.seccion} aria-labelledby="lab-frentes">
-        <h2 className={estilos.h2} id="lab-frentes">Frentes (propuesta para aprobar)</h2>
-        <p className={estilos.texto2}>Cada frente de diseño con su color y su fondo suave, como se verá en las etiquetas.</p>
-        <div className={estilos.fila}>
-          {FRENTES.map(([id, nombre]) => (
-            <span
-              key={id}
-              className={estilos.chip}
-              style={{ color: `var(--ds-frente-${id})`, background: `var(--ds-frente-${id}-soft)` }}
-            >
-              {nombre}
-            </span>
+      <Seccion id="lab-iconos" titulo={`Iconos (${NOMBRES_ICONOS.length})`}>
+        <p className={estilos.texto2}>Conjunto propio en SVG, sin librería. Heredan el color del texto que los rodea.</p>
+        <div className={estilos.iconos}>
+          {NOMBRES_ICONOS.map(n => (
+            <div className={estilos.celdaIcono} key={n}>
+              <Icon name={n} size={24} />
+              <code className={estilos.token}>{n}</code>
+            </div>
           ))}
         </div>
-      </section>
+        <p className={estilos.texto2}>Tamaños (16, 20, 24 y 32 px), con colores de texto, de acento y de estado:</p>
+        <div className={estilos.fila}>
+          <Icon name="sparkles" size={16} /><Icon name="sparkles" size={20} /><Icon name="sparkles" size={24} /><Icon name="sparkles" size={32} />
+          <span className={estilos.icoPrimario}><Icon name="heart" size={24} /></span>
+          <span className={estilos.icoExito}><Icon name="check" size={24} /></span>
+          <span className={estilos.icoAdvertencia}><Icon name="alert" size={24} /></span>
+          <span className={estilos.icoPeligro}><Icon name="x" size={24} /></span>
+        </div>
+        <p className={estilos.texto2}>
+          Sin título es decorativo y se oculta a los lectores de pantalla. Con título se anuncia:{' '}
+          <Icon name="bell" size={20} title="Notificaciones" />
+        </p>
+      </Seccion>
 
-      <section className={estilos.seccion} aria-labelledby="lab-texto">
-        <h2 className={estilos.h2} id="lab-texto">Texto sobre superficies</h2>
+      <Seccion id="lab-tarjetas" titulo="Tarjetas">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <div className={estilos.tarjetas}>
+          <Card as="section" id="demo-card-1" titulo="Ejemplo con icono y acción" icono="target" nivel={3} accion={<Chip tono="primario" tamano="sm">Acción</Chip>}>
+            <p className={estilos.parrafo}>Tarjeta elevada: borde, sombra suave y encabezado. El título nombra la región.</p>
+          </Card>
+          <Card as="article" id="demo-card-2" titulo="Ejemplo plana" variante="plana" nivel={3}>
+            <p className={estilos.parrafo}>Variante plana, sin sombra. Sirve para agrupar dentro de otra tarjeta.</p>
+          </Card>
+          <Card titulo="Ejemplo con relleno pequeño" relleno="sm" nivel={3}>
+            <p className={estilos.parrafo}>Relleno compacto para listas densas.</p>
+          </Card>
+          <Card relleno="ninguno">
+            <p className={estilos.parrafo}>Sin encabezado y sin relleno: el contenido manda.</p>
+          </Card>
+          <Card as="section" id="demo-card-5" titulo="Ejemplo con un título muy largo que debe partirse en varias líneas sin desbordar la tarjeta" icono="layers" nivel={3} accion={<Chip tono="neutro" tamano="sm">Ejemplo</Chip>}>
+            <p className={estilos.parrafo}>Prueba de texto largo: nada se corta ni empuja el ancho de la página.</p>
+          </Card>
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-chips" titulo="Chips">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>Estados:</p>
+        <div className={estilos.fila}>
+          {TONOS_ESTADO.map(([t, n]) => <Chip key={t} tono={t}>{n}</Chip>)}
+        </div>
+        <p className={estilos.texto2}>Tamaños y con icono:</p>
+        <div className={estilos.fila}>
+          <Chip tono="primario" tamano="md">Mediano</Chip>
+          <Chip tono="primario" tamano="sm">Pequeño</Chip>
+          <Chip tono="exito" icono="check">Con icono</Chip>
+          <Chip tono="advertencia" icono="alert" tamano="sm">Con icono pequeño</Chip>
+          <Chip tono="peligro" icono="x">Error</Chip>
+        </div>
+        <p className={estilos.texto2}>
+          Frentes, traducidos desde el slug original de la base. Los colores de los seis frentes son una{' '}
+          <strong>propuesta, no definitiva</strong>:
+        </p>
+        <div className={estilos.listaFrentes}>
+          {SLUGS_FRENTES.map(s => (
+            <div className={estilos.filaFrente} key={s}>
+              <Chip frente={s} />
+              <code className={estilos.token}>{s}</code>
+            </div>
+          ))}
+          <div className={estilos.filaFrente}>
+            <Chip frente={SLUG_DESCONOCIDO_DEMO} />
+            <code className={estilos.token}>{SLUG_DESCONOCIDO_DEMO} (no está en el mapa: queda neutro)</code>
+          </div>
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-barras" titulo="Barras de progreso">
+        <p className={estilos.aviso} role="note">{AVISO_DEMO}</p>
+        <p className={estilos.texto2}>
+          Un valor ausente o inválido se muestra como <strong>Sin datos</strong> (pista rayada), nunca como 0 %. Un cero real sí es 0 %.
+        </p>
+        <div className={estilos.barras}>
+          {BARRAS_DEMO.map(b => (
+            <div className={estilos.barraFila} key={b.etiqueta}>
+              <span className={estilos.barraEtiqueta}>{b.etiqueta}</span>
+              <ProgressBar valor={b.valor} etiqueta={b.etiqueta} tono={b.tono} mostrarValor />
+            </div>
+          ))}
+        </div>
+        <p className={estilos.texto2}>Una barra por frente de diseño (colores propuestos), tamaño pequeño:</p>
+        <div className={estilos.barras}>
+          {BARRAS_FRENTES_DEMO.map(b => (
+            <div className={estilos.barraFila} key={b.etiqueta}>
+              <span className={estilos.barraEtiqueta}>{b.etiqueta}</span>
+              <ProgressBar valor={b.valor} etiqueta={b.etiqueta} tono={b.tono} tamano="sm" mostrarValor />
+            </div>
+          ))}
+        </div>
+      </Seccion>
+
+      <Seccion id="lab-texto" titulo="Texto sobre superficies">
         <div className={estilos.superficies}>
           {[['--ds-bg', 'Fondo'], ['--ds-surface', 'Superficie'], ['--ds-surface-raised', 'Elevada']].map(([t, n]) => (
             <div key={t} className={estilos.caja} style={{ background: `var(${t})` }}>
@@ -93,22 +188,15 @@ export default function Laboratorio() {
             </div>
           ))}
         </div>
-        <div className={estilos.fila}>
-          <span className={estilos.estado} style={{ color: 'var(--ds-success)', background: 'var(--ds-success-soft)' }}>Éxito</span>
-          <span className={estilos.estado} style={{ color: 'var(--ds-warning)', background: 'var(--ds-warning-soft)' }}>Advertencia</span>
-          <span className={estilos.estado} style={{ color: 'var(--ds-danger)', background: 'var(--ds-danger-soft)' }}>Error</span>
-          <span className={estilos.estado} style={{ color: 'var(--ds-primary)', background: 'var(--ds-primary-soft)' }}>Primario</span>
-        </div>
-      </section>
+      </Seccion>
 
-      <section className={estilos.seccion} aria-labelledby="lab-grad">
-        <h2 className={estilos.h2} id="lab-grad">Degradado del encabezado</h2>
+      <Seccion id="lab-grad" titulo="Degradado del encabezado">
         <p className={estilos.texto2}>Abstracto azul-violeta, sin imagen ni paisaje. Se usará en el encabezado de Home.</p>
         <div className={estilos.degradado}>
           <p className={estilos.degradadoTitulo}>Buenas tardes</p>
           <p className={estilos.degradadoTexto}>Texto principal sobre el degradado.</p>
         </div>
-      </section>
+      </Seccion>
     </div>
   );
 }

@@ -1,0 +1,89 @@
+.barra {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-3);
+  min-width: 0;
+  font-family: var(--ds-font-body);
+}
+
+.pista {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--ds-bg-2);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-pill);
+}
+
+.s_md .pista {
+  height: 10px;
+}
+
+.s_sm .pista {
+  height: 6px;
+}
+
+.relleno {
+  height: 100%;
+  border-radius: var(--ds-radius-pill);
+  transition: width var(--ds-dur) var(--ds-ease);
+}
+
+/* Sin datos: pista rayada, sin relleno. No se confunde con 0 %. */
+.sinDatos {
+  background: repeating-linear-gradient(135deg, var(--ds-border) 0, var(--ds-border) 4px, transparent 4px, transparent 8px);
+}
+
+.valor {
+  flex: none;
+  min-width: 3.5em;
+  text-align: right;
+  font-size: var(--ds-text-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-text);
+}
+
+.t_neutro {
+  background: var(--ds-text-2);
+}
+
+.t_primario {
+  background: var(--ds-primary);
+}
+
+.t_exito {
+  background: var(--ds-success);
+}
+
+.t_advertencia {
+  background: var(--ds-warning);
+}
+
+.t_peligro {
+  background: var(--ds-danger);
+}
+
+.t_tanku {
+  background: var(--ds-frente-tanku);
+}
+
+.t_ticketcode {
+  background: var(--ds-frente-ticketcode);
+}
+
+.t_personal {
+  background: var(--ds-frente-personal);
+}
+
+.t_salud {
+  background: var(--ds-frente-salud);
+}
+
+.t_familia {
+  background: var(--ds-frente-familia);
+}
+
+.t_otros {
+  background: var(--ds-frente-otros);
+}
