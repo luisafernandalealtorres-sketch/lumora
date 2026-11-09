@@ -30,3 +30,11 @@ Estado de los datos al capturar: **base vacía** (estados vacíos y todos los fo
 - Con la base vacía no cubre las listas con datos. Para cubrirlas hay que crear registros de prueba (ver `tests/db/`) con la autorización del dueño.
 - Las capturas viven en el `localStorage` del navegador de desarrollo, no en el repositorio.
 - Una diferencia en un elemento que depende del tamaño de su contenido (por ejemplo el alto de una caja con texto distinto) también se reporta.
+
+## Modo con alcance al contenido (Fase 2)
+`snapshot-estilos.js` incluye también `fnContenido`, que compara solo la columna de contenido (`main#contenido > .wrap`, o `.wrap` en el diseño anterior) sin el menú, y excluye `width`, `height` y `grid-template-columns` (dependen del ancho del contenedor; se revisan aparte con las pruebas responsive).
+
+- Matriz: 9 pantallas × (390, 768, 1024, 1280 px) × (claro, oscuro) = **72 capturas**, etiqueta `c|<ruta>|<ancho>-<tema>`.
+- Se corre en un `<iframe>` del mismo origen con el ancho indicado (así los `@media` responden al ancho del iframe) y el tema se fija con `localStorage['sb-theme']`.
+- Línea base de la Fase 2: capturada sobre el commit `65ce206` (código de la Fase 1 sin shell). Comprobación de determinismo: 72/72 con 0 diferencias contra sí misma. Prueba de control: un cambio deliberado de `gap` y `letter-spacing` se detecta.
+- Estado de los datos: base vacía (igual que la línea base de la Fase 1).
