@@ -38,7 +38,14 @@ test('nada fuera del laboratorio importa su carpeta ni sus datos de demostració
   for (const r of fueraDelLab) {
     const texto = readFileSync(r, 'utf8');
     const codigo = texto.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-    assert.ok(!/laboratorio/.test(codigo), `${rel(r)} hace referencia al laboratorio`);
+    if (rel(r) === 'lib/domain/navegacion.js') {
+      // Fase 2: la navegación puede ENLAZAR al laboratorio, pero solo como elemento de desarrollo
+      // y nunca importando su carpeta ni sus datos.
+      assert.ok(!/(import|from|require)[^\n]*laboratorio/.test(codigo), `${rel(r)} importa el laboratorio`);
+      assert.match(codigo, /ruta: '\/laboratorio'[^\n]*soloDesarrollo: true/, 'el enlace al laboratorio debe ser solo de desarrollo');
+    } else {
+      assert.ok(!/laboratorio/.test(codigo), `${rel(r)} hace referencia al laboratorio`);
+    }
     assert.ok(!/\bdemo(\.js)?['"]/.test(texto), `${rel(r)} importa un módulo "demo"`);
   }
 });
