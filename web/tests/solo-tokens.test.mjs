@@ -12,8 +12,8 @@ const leer = ruta => readFileSync(join(RAIZ, ruta), 'utf8');
 const sinComentarios = s => s.replace(/\/\*[\s\S]*?\*\//g, '');
 const listar = (dir, ext) => (existsSync(join(RAIZ, dir)) ? readdirSync(join(RAIZ, dir)).filter(f => f.endsWith(ext)).map(f => `${dir}/${f}`) : []);
 
-const CSS_NUEVOS = [...listar('components/ui', '.module.css'), ...listar('components/shell', '.module.css'), ...listar('app/(app)/laboratorio', '.module.css')];
-const JS_NUEVOS = [...listar('components/ui', '.js'), ...listar('components/shell', '.js'), ...listar('app/(app)/laboratorio', '.js')];
+const CSS_NUEVOS = [...listar('components/ui', '.module.css'), ...listar('components/shell', '.module.css'), ...listar('components/timer', '.module.css'), ...listar('components/lifepulse', '.module.css'), ...listar('components/home', '.module.css'), ...listar('app/(app)/laboratorio', '.module.css')];
+const JS_NUEVOS = [...listar('components/ui', '.js'), ...listar('components/shell', '.js'), ...listar('components/timer', '.js'), ...listar('components/lifepulse', '.js'), ...listar('components/home', '.js'), ...listar('app/(app)/laboratorio', '.js')];
 
 const tokensCss = leer('styles/tokens.css');
 const TOKENS_DEFINIDOS = new Set([...tokensCss.matchAll(/(--ds-[\w-]+)\s*:/g)].map(m => m[1]));

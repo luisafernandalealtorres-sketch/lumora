@@ -57,7 +57,7 @@ export default function Pendientes({ frentes, inicial, metas = [] }) {
               <div className={`todo ${it.hecho ? 'done' : ''}`} key={it.id}>
                 <input type="checkbox" checked={it.hecho} onChange={() => alternar(it)} aria-label={it.texto} />
                 <span>{it.texto}</span>
-                <button onClick={() => borrar(it)} aria-label="Borrar pendiente">×</button>
+                <button className="todo-borrar" onClick={() => borrar(it)} aria-label="Borrar pendiente">×</button>
               </div>
             ))}
           </div>

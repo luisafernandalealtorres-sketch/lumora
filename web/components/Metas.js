@@ -156,7 +156,7 @@ export default function Metas({ frentes, metas: m0, hitos: h0, tareas }) {
             <button className="btn" type="submit">Crear meta</button>
           </form>
           <p className="sub" style={{ marginTop: 10 }}>
-            El avance cuenta los hitos y los pendientes que vincules a la meta desde Mi día.
+            El avance cuenta los hitos y los pendientes que vincules a la meta desde Home.
           </p>
         </section>
       </div>

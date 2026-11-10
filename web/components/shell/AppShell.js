@@ -9,6 +9,8 @@ import SearchPalette from './SearchPalette';
 import AssistantFloatingButton from './AssistantFloatingButton';
 import AssistantDrawer from './AssistantDrawer';
 import RouteEffects from './RouteEffects';
+import { TemporizadorProvider } from '@/components/timer/TemporizadorProvider';
+import MiniTemporizador from '@/components/timer/MiniTemporizador';
 import estilos from './AppShell.module.css';
 
 // Marco de la aplicación: barra lateral (escritorio y tablet), barra superior, barra inferior (móvil),
@@ -18,11 +20,13 @@ export default function AppShell({ children }) {
   const desarrollo = process.env.NODE_ENV !== 'production';
   return (
     <ShellProvider>
+      <TemporizadorProvider>
       <div className={estilos.marco} data-shell>
         <a href="#contenido" className={estilos.salto}>Saltar al contenido</a>
         <Suspense fallback={null}><Sidebar desarrollo={desarrollo} /></Suspense>
         <div className={estilos.columna}>
           <Topbar />
+          <MiniTemporizador />
           <main id="contenido" tabIndex={-1} className={estilos.contenido}>
             <div className="wrap">{children}</div>
           </main>
@@ -36,6 +40,7 @@ export default function AppShell({ children }) {
         <AssistantFloatingButton />
         <RouteEffects />
       </div>
+      </TemporizadorProvider>
     </ShellProvider>
   );
 }

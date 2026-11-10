@@ -1,97 +1,47 @@
 import { createClient } from '@/lib/supabase/server';
-import { verificar } from '@/lib/consulta';
-import Pendientes from '@/components/Pendientes';
+import HomeApp from '@/components/home/HomeApp';
+import { horaBogota, sumarDias } from '@/lib/domain/fechas';
+import { leerFuente } from '@/lib/domain/estadosHome';
 
 export const dynamic = 'force-dynamic';
 
-const hora = iso => new Date(iso).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Bogota' });
-
+// Home, centro de control. El servidor lee las fuentes heredadas; cada una por separado: si una falla, solo esa se marca
+// «Error de lectura» (no se vacía ni se tira la pantalla). Nada se inventa. La Fase 3 se carga en el cliente.
 export default async function Home() {
   const supabase = createClient();
-  const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
-  const fechaLarga = new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' });
+  const ahora = new Date();
+  const hoy = ahora.toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+  const fechaLarga = ahora.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' });
+  const desdeHabitos = sumarDias(hoy, -45);
 
-  const metasR = await supabase.from('metas').select('id,titulo,frente').eq('estado', 'activa').order('creado_en');
-  const [frentesR, pendR, agendaR, correosR, resumenR] = await Promise.all([
-    supabase.from('frentes').select('*').order('orden'),
-    supabase.from('pendientes').select('*').order('creado_en'),
-    supabase.from('agenda_hoy').select('*').eq('fecha', hoy).order('inicio'),
-    supabase.from('correos_hoy').select('*').eq('fecha', hoy).order('urgente', { ascending: false }),
-    supabase.from('resumen_dia').select('*').eq('fecha', hoy).maybeSingle(),
-  ]);
+  const consultas = {
+    frentes: supabase.from('frentes').select('*').order('orden'),
+    pendientes: supabase.from('pendientes').select('*').order('creado_en'),
+    metas: supabase.from('metas').select('id,titulo,frente,estado').order('creado_en'),
+    hitos: supabase.from('hitos').select('id,meta_id,hecho,fecha'),
+    gastos: supabase.from('gastos').select('fecha,valor_cop,categoria,frente').gte('fecha', `${hoy.slice(0, 7)}-01`),
+    presupuestos: supabase.from('presupuestos').select('categoria,monto_cop'),
+    recurrentes: supabase.from('recurrentes').select('*').eq('activo', true),
+    jornadas: supabase.from('jornadas').select('fecha').order('fecha', { ascending: false }).limit(90),
+    notas: supabase.from('notas').select('id,titulo,frente,actualizado_en').order('actualizado_en', { ascending: false }).limit(300),
+    biblioteca: supabase.from('biblioteca').select('id,titulo,guardado_en').order('guardado_en', { ascending: false }).limit(8),
+    habitos: supabase.from('habitos').select('*').eq('activo', true).order('creado_en'),
+    registros_habitos: supabase.from('habito_registros').select('habito_id,fecha,valor').gte('fecha', desdeHabitos),
+    agenda: supabase.from('agenda_hoy').select('*').eq('fecha', hoy).order('inicio'),
+    correos: supabase.from('correos_hoy').select('*').eq('fecha', hoy).order('urgente', { ascending: false }),
+    resumen: supabase.from('resumen_dia').select('*').eq('fecha', hoy).maybeSingle(),
+  };
+  const nombres = Object.keys(consultas);
+  const respuestas = await Promise.all(nombres.map(n => consultas[n]));
+  const datos = { hoy, hora: horaBogota(ahora), fechaLarga, ahoraMs: ahora.getTime() };
+  const errores = [];
+  nombres.forEach((n, i) => {
+    const f = leerFuente(respuestas[i]);
+    if (!f.ok) errores.push(n);
+    datos[n === 'registros_habitos' ? 'registrosHabitos' : n] = f.ok ? f.data : null;
+  });
+  const frentes = datos.frentes ?? [];
+  delete datos.frentes;
 
-  verificar({ frentes: frentesR, metas: metasR, pendientes: pendR, agenda: agendaR, correos: correosR, resumen: resumenR });
-  const frentes = frentesR.data ?? [];
-  const pend = pendR.data ?? [];
-  const agenda = agendaR.data ?? [];
-  const correos = correosR.data ?? [];
-  const resumen = resumenR.data;
-
-  const avance = frentes
-    .map(f => {
-      const l = pend.filter(p => p.frente === f.slug);
-      return { ...f, total: l.length, hechos: l.filter(p => p.hecho).length };
-    })
-    .filter(f => f.total > 0);
-
-  return (
-    <>
-      <header>
-        <div>
-          <div className="date">{fechaLarga}</div>
-          <h1>Mi día</h1>
-        </div>
-      </header>
-
-      <div className="summary">
-        <b>Hoy y mañana</b>
-        <span>{resumen?.texto ?? 'El resumen del día aparece aquí cuando se actualiza a las 6:00 a. m.'}</span>
-      </div>
-
-      <div className="cols">
-        <div className="stack">
-          <section>
-            <h2>Agenda de hoy</h2>
-            {agenda.length ? (
-              <ul>{agenda.map(e => (
-                <li className="ev" key={e.id}>
-                  <span className="time">{hora(e.inicio)}</span>
-                  <div><div>{e.titulo}</div>{e.detalle && <div className="sub">{e.detalle}</div>}</div>
-                </li>
-              ))}</ul>
-            ) : <p className="empty">Sin eventos hoy.</p>}
-          </section>
-
-          <section>
-            <h2>Correos para revisar</h2>
-            {correos.length ? (
-              <ul>{correos.map(c => (
-                <li key={c.id}>
-                  <div><span className="from">{c.remitente}</span>{c.etiqueta && <span className={`pill ${c.urgente ? 'warn' : ''}`}>{c.etiqueta}</span>}</div>
-                  <div>{c.asunto}</div>
-                  {c.resumen && <div className="sub">{c.resumen}</div>}
-                </li>
-              ))}</ul>
-            ) : <p className="empty">Sin correos por revisar.</p>}
-          </section>
-
-          <section>
-            <h2>Avance por frente</h2>
-            {avance.length ? (
-              <div style={{ display: 'grid', gap: 14 }}>
-                {avance.map(f => (
-                  <div className="avance" key={f.slug}>
-                    <div className="row"><span>{f.nombre}</span><span className="sub">{f.hechos} de {f.total}</span></div>
-                    <div className="bar"><i style={{ width: `${(f.hechos / f.total) * 100}%` }} /></div>
-                  </div>
-                ))}
-              </div>
-            ) : <p className="empty">Cuando agregues pendientes verás aquí el avance de cada frente.</p>}
-          </section>
-        </div>
-
-        <Pendientes frentes={frentes} inicial={pend} metas={metasR.data ?? []} />
-      </div>
-    </>
-  );
+  return <HomeApp datos={datos} errores={errores} frentes={frentes} />;
 }

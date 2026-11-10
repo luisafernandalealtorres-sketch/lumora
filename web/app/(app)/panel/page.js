@@ -90,7 +90,7 @@ export default async function Panel() {
                   </div>
                 ))}
               </div>
-            ) : <p className="empty">Agrega pendientes en Mi día para ver el avance de cada frente.</p>}
+            ) : <p className="empty">Agrega pendientes en Home para ver el avance de cada frente.</p>}
           </section>
           <section>
             <h2>Notas por frente</h2>

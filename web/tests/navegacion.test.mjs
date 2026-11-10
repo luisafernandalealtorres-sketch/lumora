@@ -12,7 +12,7 @@ import { ICONOS } from '../components/ui/icons.js';
 const aqui = dirname(fileURLToPath(import.meta.url));
 const appDir = join(aqui, '..', 'app', '(app)');
 
-test('las nueve rutas de negocio aparecen exactamente una vez', () => {
+test('las trece rutas de negocio (las nueve de la Fase 2 más /focus, /habitos, /atencion y /life-pulse) aparecen exactamente una vez', () => {
   const rutas = ELEMENTOS.filter(e => e.ruta && !e.soloDesarrollo).map(e => e.ruta);
   assert.deepEqual([...rutas].sort(), [...RUTAS_NEGOCIO].sort());
   assert.equal(new Set(rutas).size, rutas.length);
@@ -48,7 +48,7 @@ test('identificadores únicos, grupos válidos e iconos existentes', () => {
 test('los cuatro grupos de producción y Gastos subordinado a Finanzas', () => {
   const g = gruposConElementos({ desarrollo: false });
   assert.deepEqual(g.map(x => x.id), ['inicio', 'mi-vida', 'conocimiento', 'asistente']);
-  assert.deepEqual(g.find(x => x.id === 'mi-vida').elementos.map(e => e.id), ['metas', 'finanzas', 'gastos', 'salud', 'jornada']);
+  assert.deepEqual(g.find(x => x.id === 'mi-vida').elementos.map(e => e.id), ['focus', 'habitos', 'atencion', 'metas', 'finanzas', 'gastos', 'salud', 'jornada']);
   assert.equal(ELEMENTOS.find(e => e.id === 'gastos').padre, 'finanzas');
 });
 
@@ -65,10 +65,10 @@ test('el asistente es una acción, no una ruta', () => {
   assert.equal(a.accion, 'asistente');
 });
 
-test('barra móvil: Mi día, Panel y Metas; el resto va en Más', () => {
+test('barra móvil: Home, Panel y Metas; el resto va en Más', () => {
   assert.deepEqual(elementosBarraMovil().map(e => e.id), ['mi-dia', 'panel', 'metas']);
   const mas = elementosMas({ desarrollo: false }).map(e => e.id);
-  assert.deepEqual(mas, ['finanzas', 'gastos', 'salud', 'jornada', 'biblioteca', 'cerebro', 'asistente']);
+  assert.deepEqual(mas, ['life-pulse', 'focus', 'habitos', 'atencion', 'finanzas', 'gastos', 'salud', 'jornada', 'biblioteca', 'cerebro', 'asistente']);
 });
 
 test('itemDeRuta: exacta, con consulta, con barra final y desconocida', () => {
@@ -91,7 +91,7 @@ test('esActivo: "/" solo es activo en "/" y Gastos no activa Finanzas', () => {
 });
 
 test('migas por ruta', () => {
-  assert.deepEqual(migas('/').map(m => m.nombre), ['Mi día']);
+  assert.deepEqual(migas('/').map(m => m.nombre), ['Home']);
   assert.deepEqual(migas('/panel').map(m => m.nombre), ['Panel']);
   assert.deepEqual(migas('/metas').map(m => m.nombre), ['Mi vida', 'Metas']);
   assert.deepEqual(migas('/gastos').map(m => m.nombre), ['Mi vida', 'Finanzas', 'Gastos']);

@@ -6,7 +6,7 @@ import { SCRIPT_TEMA } from '@/lib/theme';
 const display = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-display', weight: ['500', '700'] });
 const body = Instrument_Sans({ subsets: ['latin'], variable: '--font-body' });
 
-export const metadata = { title: 'Cerebro de Lu', description: 'Mi día, pendientes y avance por frente.' };
+export const metadata = { title: 'Cerebro de Lu', description: 'Home, pendientes y avance por frente.' };
 
 export default function RootLayout({ children }) {
   return (

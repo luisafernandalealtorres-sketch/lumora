@@ -6,7 +6,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "test": "node --no-warnings --test"
+    "test": "node --no-warnings --test",
+    "test:integracion": "node --no-warnings --test tests/integracion-local/temporizador.integ.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

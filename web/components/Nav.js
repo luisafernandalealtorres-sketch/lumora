@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 const links = [
-  ['/', 'Mi día'],
+  ['/', 'Home'],
   ['/panel', 'Panel'],
   ['/metas', 'Metas'],
   ['/finanzas', 'Finanzas'],

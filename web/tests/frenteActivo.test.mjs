@@ -35,7 +35,7 @@ test('enlaceConFrente conserva el frente y no inventa uno', () => {
 });
 
 test('ningún módulo heredado aplica el filtro todavía (no se simula filtrado)', () => {
-  assert.deepEqual(MODULOS_CON_FILTRO, []);
+  assert.deepEqual(MODULOS_CON_FILTRO, ['atencion', 'life-pulse']);
   for (const id of ['mi-dia', 'panel', 'metas', 'finanzas', 'gastos', 'salud', 'jornada', 'biblioteca', 'cerebro']) assert.equal(aplicaFiltro(id), false);
 });
 

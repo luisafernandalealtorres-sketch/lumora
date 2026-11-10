@@ -6,10 +6,11 @@ export const PARAMETRO = 'frente';
 
 /**
  * Módulos cuyas pantallas YA aplican el filtro de frente.
- * Empieza vacío a propósito: ningún módulo heredado lee el parámetro todavía.
+ * Ningún módulo heredado lo lee todavía. Solo los de la Fase 3 que filtran de verdad: Atención (Balance por frente) y
+ * Life Pulse (solo el indicador Balance; Execution y Wellbeing no tienen frente definido y no se filtran).
  * Un módulo se agrega aquí solo cuando de verdad filtra su contenido.
  */
-export const MODULOS_CON_FILTRO = [];
+export const MODULOS_CON_FILTRO = ['atencion', 'life-pulse'];
 
 /** Id de frente válido (de los seis) o null. 'sin-asignar' no se puede elegir como filtro. */
 export function frenteDeParametro(valor) {
