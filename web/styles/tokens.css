@@ -51,6 +51,11 @@
   --ds-grad-3: #D3E4FF;
   --ds-grad-header: linear-gradient(120deg, var(--ds-grad-1) 0%, var(--ds-grad-2) 50%, var(--ds-grad-3) 100%);
   --ds-glow: rgba(118, 84, 203, 0.12);   /* iluminación ambiental violeta */
+  --ds-glow-warm: rgba(251, 146, 60, 0.20);   /* resplandor cálido del encabezado (referencia visual) */
+  --ds-glow-rosa: rgba(190, 24, 93, 0.12);
+  --ds-sheen: rgba(255, 255, 255, 0.35);      /* brillo de barras y anillos */
+  --ds-grad-accent: linear-gradient(135deg, var(--ds-primary), var(--ds-secondary));
+  --ds-grad-card: linear-gradient(160deg, var(--ds-surface-raised) 0%, var(--ds-surface) 100%);
 
   /* ---- Elevación ---- */
   --ds-shadow-1: 0 1px 2px rgba(40, 34, 61, 0.08);
@@ -139,6 +144,9 @@
     --ds-grad-2: #4C35B8;
     --ds-grad-3: #2A5FC4;
     --ds-glow: rgba(167, 139, 250, 0.28);
+    --ds-glow-warm: rgba(251, 146, 60, 0.38);
+    --ds-glow-rosa: rgba(244, 114, 182, 0.22);
+    --ds-sheen: rgba(255, 255, 255, 0.28);
     --ds-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
     --ds-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
     color-scheme: dark;
@@ -182,6 +190,9 @@
   --ds-grad-2: #4C35B8;
   --ds-grad-3: #2A5FC4;
   --ds-glow: rgba(167, 139, 250, 0.28);
+  --ds-glow-warm: rgba(251, 146, 60, 0.38);
+  --ds-glow-rosa: rgba(244, 114, 182, 0.22);
+  --ds-sheen: rgba(255, 255, 255, 0.28);
   --ds-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --ds-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
   color-scheme: dark;

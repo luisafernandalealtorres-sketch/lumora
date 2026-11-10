@@ -9,9 +9,9 @@
   height: 52px;
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-pill);
-  background: var(--ds-primary);
+  background: var(--ds-grad-accent);
   color: var(--ds-on-primary);
-  box-shadow: var(--ds-shadow-2);
+  box-shadow: var(--ds-shadow-2), 0 0 28px var(--ds-glow);
   cursor: pointer;
   transition: transform var(--ds-dur-fast) var(--ds-ease);
 }

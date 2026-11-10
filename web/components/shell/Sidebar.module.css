@@ -62,6 +62,7 @@
   gap: var(--ds-space-2);
   flex: 1;
   min-height: 0;
+  overflow-y: auto; /* el menú se desplaza dentro de su caja y ya no se dibuja encima del pie */
 }
 
 .grupo {
@@ -148,9 +149,10 @@
 
 .activo,
 .activo:hover {
-  background: var(--ds-primary-soft);
-  color: var(--ds-primary);
+  background: var(--ds-grad-accent);
+  color: var(--ds-on-primary);
   font-weight: 600;
+  box-shadow: 0 4px 16px var(--ds-glow);
 }
 
 .pie {
