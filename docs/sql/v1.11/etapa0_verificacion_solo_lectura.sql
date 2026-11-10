@@ -1,7 +1,7 @@
 -- ============================================================================
 -- FASE 3 · v1.11 · Etapa 0 · verificacion_solo_lectura
 -- Extraído de docs/MIGRACIONES-FASE-3-v1.11.md (esa es la fuente).
--- NO se ha ejecutado en Supabase. Validado completo (404 PASS, 0 FAIL, 2 NOT RUN) solo en un PostgreSQL 16 local y desechable: docs/VALIDACION-LOCAL-FASE-3-v1.11.md.
+-- Esta etapa 0 SE EJECUTÓ en Supabase el 10 nov 2026 (proyecto kztoazvjfwzndeubghey, solo lectura) y fue aprobada; las etapas de aplicación NO se han ejecutado. Validado completo en dos PostgreSQL locales y desechables: 16.15 (404 PASS, 0 FAIL, 2 NOT RUN; docs/VALIDACION-LOCAL-FASE-3-v1.11.md) y 17.11 (497 PASS, 0 FAIL, 2 NOT RUN; docs/VALIDACION-LOCAL-FASE-3-v1.11-PG17.md).
 -- Antes de cualquier ejecución: etapa 0 (verificación de roles y permisos) y autorización expresa por etapa.
 -- ============================================================================
 -- 0.0 Contexto de ejecución. Debe ser el rol que ejecutará las migraciones (en Supabase, normalmente `postgres`).
