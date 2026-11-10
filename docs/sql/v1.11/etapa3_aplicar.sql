@@ -192,9 +192,10 @@ grant select on public.habito_segmentos         to authenticated;
 grant select on public.habito_tiempo            to authenticated;
 grant select on public.habito_tiempo_historial  to authenticated;
 grant select, update (nombre, modo_registro) on public.habitos_config to authenticated;   -- columnas editables por el cliente
--- objetivos_atencion es CRUD del propietario: sin privilegios para anon ni residuales (TRUNCATE, REFERENCES, TRIGGER).
+-- objetivos_atencion es CRUD del propietario: sin privilegios para anon ni residuales (TRUNCATE, REFERENCES, TRIGGER y, desde PostgreSQL 17, MAINTAIN): se revoca todo y se concede solo el CRUD.
 revoke all on public.objetivos_atencion from anon;
-revoke truncate, references, trigger on public.objetivos_atencion from authenticated;
+revoke all on public.objetivos_atencion from authenticated;
+grant select, insert, update, delete on public.objetivos_atencion to authenticated;   -- PostgreSQL 17 añade MAINTAIN a los privilegios por defecto: «revoke truncate, references, trigger» no lo quitaba
 
 -- ---------- Auxiliares internas ----------
 -- ¿El hábito tiene ocurrencia programada en esa fecha? (versión vigente hacia delante; respeta archivado)

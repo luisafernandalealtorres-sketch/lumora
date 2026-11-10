@@ -161,9 +161,10 @@ grant select on public.temporizador_activo to authenticated;
 grant select on public.focus_sesiones      to authenticated;
 grant select on public.descansos           to authenticated;
 grant select, update (notificada) on public.operaciones to authenticated;   -- única columna que el cliente puede actualizar
--- preferencias_usuario es CRUD del propietario: sin privilegios para anon ni residuales (TRUNCATE, REFERENCES, TRIGGER).
+-- preferencias_usuario es CRUD del propietario: sin privilegios para anon ni residuales (TRUNCATE, REFERENCES, TRIGGER y, desde PostgreSQL 17, MAINTAIN): se revoca todo y se concede solo el CRUD.
 revoke all on public.preferencias_usuario from anon;
-revoke truncate, references, trigger on public.preferencias_usuario from authenticated;
+revoke all on public.preferencias_usuario from authenticated;
+grant select, insert, update, delete on public.preferencias_usuario to authenticated;   -- PostgreSQL 17 añade MAINTAIN a los privilegios por defecto: «revoke truncate, references, trigger» no lo quitaba
 
 -- ---------- Funciones auxiliares internas (no ejecutables por el cliente) ----------
 create or replace function public._uid()
