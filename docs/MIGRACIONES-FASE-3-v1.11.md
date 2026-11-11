@@ -2,7 +2,7 @@
 
 Fecha: 9 nov 2026. Base: `docs/DISENO-TECNICO-FASE-3-v1.11.md`, las aprobaciones P1 a P15 y las decisiones T-1 a T-13 aprobadas el 9 nov (T-9 queda pendiente).
 
-**Estado de validación (v1.11):** este SQL se aplicó y se probó completo (etapas 1 a 3, reversión suave, reversión dura, reaplicación) en un PostgreSQL 16 local y desechable: 404 PASS, 0 FAIL, 2 NOT RUN (`docs/VALIDACION-LOCAL-FASE-3-v1.11.md`). **No se ejecutó en Supabase** y no está autorizada su ejecución allí.
+**Estado de validación (v1.11):** este SQL se aplicó y se probó completo (etapas 1 a 3, reversión suave, reversión dura, reaplicación) en un PostgreSQL 16 local y desechable: 404 PASS, 0 FAIL, 2 NOT RUN (`docs/VALIDACION-LOCAL-FASE-3-v1.11.md`). **Estado en Supabase (2026-11-11):** las etapas 1, 2 y 3 están aplicadas y verificadas en el proyecto; la etapa 4 no está implementada. Registro en `docs/REGISTRO-EJECUCION-FASE-3-v1.11.md`. Las cabeceras «NO se ha ejecutado en Supabase» de `docs/sql/v1.11/*.sql` quedaron como estaban cuando se aplicaron (los `*_aplicar.sql` no se tocan para conservar su hash); la fuente de verdad del estado es este párrafo y el registro.
 
 **Cambios de la v1.11 respecto de la v1.10 (las versiones v1.8, v1.9 y v1.10 se conservan intactas):**
 - **T-6 (aprobada):** nueva función `prioridad_en_cierre(tabla, registro, fecha_limite)` (etapa 1) que reconstruye la prioridad vigente al cierre del día de vencimiento en America/Bogota desde `cambios_registro`; se añade la columna `seq` (identidad) para ordenar eventos con el mismo instante.
