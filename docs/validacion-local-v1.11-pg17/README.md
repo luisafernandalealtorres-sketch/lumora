@@ -21,4 +21,23 @@ Diferencias respecto de `docs/validacion-local-v1.11` (PostgreSQL 16):
 3. `powershell -File ejecutar_validacion.ps1 -Bin <bin de PostgreSQL 17> -Port 54341 -Work <carpeta temporal> -Repo <raíz del repositorio>`.
 4. Deja `resultados.csv` en la carpeta de trabajo. Al terminar: `pg_ctl stop -m fast` y borrar la carpeta.
 
+## Pruebas de reversión con temporizadores activos (etapa 3)
+
+`ejecutar_validacion.ps1` prueba las reversiones **sin** temporizadores activos. Estas pruebas cubren el caso que dejaba un bloqueo huérfano en `temporizador_activo` y bloqueaba Focus. Valen para **PostgreSQL 16.15 y 17.11** (el fixture reproduce el entorno real y funciona en ambas versiones):
+
+| Archivo | Qué hace |
+|---|---|
+| `81_ayudantes_reversion.sql` | Ayudantes (`zz.hab`, `zz.privs_etapa2`, tabla `zz.antes`) |
+| `82_semilla_reversion_temporizadores.sql` | u1: hábito en curso (600 s) y un objetivo; u3: hábito pausado (300 s); u2: Focus en curso; u4: descanso en curso |
+| `83_comprobar_reversion_suave.sql` | Tras la suave: bloqueos de hábito limpiados, tiempo acreditado y conservado, datos conservados, Focus y descansos intactos, Focus iniciable, privilegios de edición revocados y lectura conservada |
+| `84_comprobar_reversion_dura.sql` | Tras la dura: sin bloqueos huérfanos, tablas y funciones eliminadas, Focus y descansos intactos, Focus iniciable |
+| `85_comprobar_cadena_suave_dura.sql` | Cadena habitual: suave y luego dura |
+| `ejecutar_reversion_temporizadores.ps1` | Ejecutor (mismo modo de uso que `ejecutar_validacion.ps1`; deja `resultados-reversion-temporizadores.csv`) |
+
+Uso: igual que arriba, con `powershell -File ejecutar_reversion_temporizadores.ps1 -Bin <bin de PostgreSQL> -Port 54341 -Work <carpeta temporal> -Repo <raíz del repositorio>`.
+
+- `resultados-reversion-temporizadores-pg16.15.csv`: corrida en 16.15 (61 PASS, 0 FAIL). **La corrida en 17.11 está pendiente.**
+- Contra las reversiones antiguas (antes de la corrección) estas mismas pruebas dan 19 FAIL: detectan el defecto.
+- Comportamiento esperado y pérdida de datos de cada reversión: `docs/MIGRACIONES-FASE-3-v1.11.md`, §3.S, §3.D y §3.R.
+
 `resultados.csv` es la corrida final en 17.11 (497 PASS, 0 FAIL, 2 NOT RUN). `resultados-pg16-recorrida-con-correccion.csv` es la corrida de `validacion-local-v1.11` en 16.15 con el SQL ya corregido (404 PASS, 0 FAIL, 2 NOT RUN).
