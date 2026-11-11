@@ -1,6 +1,6 @@
 // Utilidades compartidas de la capa de datos: identidad del dispositivo, lecturas y llamadas RPC idempotentes.
 // Cada operación lleva op_id único, dispositivo y secuencia creciente: reintentar la misma operación es idempotente en el servidor.
-// No implementa la cola sin conexión (etapa 4, pendiente de T-9).
+// La cola sin conexión vive en lib/cola/cola.js (solo registros manuales de hábitos; T-9 y la reconciliación entre dispositivos siguen pendientes).
 
 const CLAVE_DISPOSITIVO = 'sb-dispositivo-v1';
 

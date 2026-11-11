@@ -4,10 +4,11 @@
 // - Objetivos semanales: CRUD directo sobre objetivos_atencion; la base rechaza semanas pasadas (T-7, semana_cerrada).
 import { crearIdentidadDispositivo, crearLlamadorRpc, uuidAleatorio, unica } from './rpc.js';
 import { sumarDias } from '../domain/fechas.js';
+import { esErrorReintentable } from '../cola/cola.js';
 
 const desdeISO = fecha => `${fecha}T00:00:00-05:00`;   // America/Bogota es UTC-5 todo el año
 
-export function crearServicioHabitos(supabase, { identidad, uuid = uuidAleatorio } = {}) {
+export function crearServicioHabitos(supabase, { identidad, uuid = uuidAleatorio, cola = null, enLinea = () => (typeof navigator === 'undefined' ? true : navigator.onLine !== false) } = {}) {
   const ident = identidad ?? crearIdentidadDispositivo({ almacen: typeof window !== 'undefined' ? window.localStorage : null });
   const rpc = crearLlamadorRpc(supabase, ident, uuid);
   const usuario = async () => (await supabase.auth.getUser()).data.user;
@@ -43,7 +44,30 @@ export function crearServicioHabitos(supabase, { identidad, uuid = uuidAleatorio
       return r.data;
     },
 
-    registrarManual: ({ habitoId, fecha, segundos }) => rpc('habito_registrar_manual', { p_habito_id: habitoId, p_fecha: fecha, p_segundos: segundos }),
+    /**
+     * Sin `cola` se comporta como siempre. Con `cola`, si no hay conexión (o la red falla) la operación se guarda
+     * con su op_id y se devuelve { encolada: true }; se reenvía con la misma op_id al volver la conexión.
+     */
+    async registrarManual({ habitoId, fecha, segundos }) {
+      const args = { p_habito_id: habitoId, p_fecha: fecha, p_segundos: segundos };
+      if (!cola) return rpc('habito_registrar_manual', args);
+      const opId = uuid();
+      const guardar = () => cola.encolar({ opId, dispositivoId: ident.dispositivoId, seq: ident.siguienteSeq(), tipo: 'habito_registrar_manual', rpc: 'habito_registrar_manual', args });
+      if (!enLinea()) { await guardar(); return { encolada: true }; }
+      try {
+        return await rpc('habito_registrar_manual', args, opId);
+      } catch (e) {
+        if (!esErrorReintentable(e)) throw e;
+        await guardar();
+        return { encolada: true };
+      }
+    },
+
+    /** Reenvía lo pendiente con la misma op_id, dispositivo y seq con que se guardó. */
+    enviarPendientes: () => cola?.enviarPendientes() ?? Promise.resolve({ enviadas: 0, rechazadas: 0, pendientes: 0, detenida: null }),
+    pendientesCola: () => cola?.pendientes() ?? Promise.resolve([]),
+    rechazadasCola: () => cola?.rechazadas() ?? Promise.resolve([]),
+    descartarRechazada: id => cola?.descartarRechazada(id),
 
     async renombrar({ habitoId, nombre }) {
       const r = await supabase.from('habitos_config').update({ nombre: nombre.trim() }).eq('id', habitoId).select().single();

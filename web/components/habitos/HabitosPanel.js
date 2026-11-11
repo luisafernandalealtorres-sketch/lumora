@@ -9,6 +9,7 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import Skeleton from '@/components/ui/Skeleton';
 import { createClient } from '@/lib/supabase/client';
 import { crearServicioHabitos } from '@/lib/data/habitos';
+import { crearCola, almacenPorUsuario, enviadorRpc } from '@/lib/cola/cola';
 import { ejecutar } from '@/lib/data/temporizador';
 import { fechaBogota, inicioSemana, sumarDias, etiquetaFecha } from '@/lib/domain/fechas';
 import { traducirError, duracionLegible } from '@/lib/domain/temporizador';
@@ -19,7 +20,17 @@ const hora = iso => new Date(iso).toLocaleString('es-CO', { day: 'numeric', mont
 
 // `servicio` es opcional: permite inyectar otra fuente de datos (pruebas y vistas previas); por defecto usa Supabase.
 export default function HabitosPanel({ servicio: inyectado = null }) {
-  const servicio = useMemo(() => inyectado ?? crearServicioHabitos(createClient()), [inyectado]);
+  const servicio = useMemo(() => {
+    if (inyectado) return inyectado;
+    const supabase = createClient();
+    const cola = crearCola({
+      almacen: almacenPorUsuario(async () => (await supabase.auth.getUser()).data.user?.id),
+      enviar: enviadorRpc(supabase),
+      enLinea: () => navigator.onLine !== false,
+    });
+    return crearServicioHabitos(supabase, { cola });
+  }, [inyectado]);
+  const [colaEstado, setColaEstado] = useState({ pendientes: [], rechazadas: [] });
   const [estado, setEstado] = useState({ cargando: true, error: null, datos: null });
   const [aviso, setAviso] = useState(null);
   const [ocupado, setOcupado] = useState(false);
@@ -36,10 +47,33 @@ export default function HabitosPanel({ servicio: inyectado = null }) {
   }, [servicio, desde]);
   useEffect(() => { cargar(); }, [cargar]);
 
+  // Cola sin conexión: se refleja lo pendiente/rechazado y se reenvía al volver la conexión, al recuperar el foco y cada 30 s mientras haya pendientes.
+  const refrescarCola = useCallback(async () => {
+    try { setColaEstado({ pendientes: await servicio.pendientesCola?.() ?? [], rechazadas: await servicio.rechazadasCola?.() ?? [] }); } catch { /* sin almacenamiento: no hay cola */ }
+  }, [servicio]);
+  const sincronizar = useCallback(async () => {
+    try {
+      const r = await servicio.enviarPendientes?.();
+      await refrescarCola();
+      if (r?.enviadas > 0) await cargar();
+    } catch { /* se reintentará */ }
+  }, [servicio, refrescarCola, cargar]);
+  useEffect(() => {
+    sincronizar();
+    const alVolver = () => sincronizar();
+    const alFoco = () => { if (document.visibilityState === 'visible') sincronizar(); };
+    window.addEventListener('online', alVolver);
+    document.addEventListener('visibilitychange', alFoco);
+    const t = setInterval(() => { if (colaEstado.pendientes.length > 0) sincronizar(); }, 30000);
+    return () => { window.removeEventListener('online', alVolver); document.removeEventListener('visibilitychange', alFoco); clearInterval(t); };
+  }, [sincronizar, colaEstado.pendientes.length]);
+
   async function accion(fn, okMsg) {
     setOcupado(true); setAviso(null);
     const r = await ejecutar(fn);
-    setAviso(r.ok ? { ok: true, texto: okMsg } : { ok: false, texto: r.error.mensaje });
+    const encolada = r.ok && r.data?.encolada;
+    setAviso(r.ok ? { ok: true, texto: encolada ? 'Sin conexión: guardado en este dispositivo y se enviará al volver. Si borras los datos del navegador antes, se pierde.' : okMsg } : { ok: false, texto: r.error.mensaje });
+    if (encolada) await refrescarCola();
     await cargar();
     setOcupado(false);
     return r;
@@ -71,6 +105,20 @@ export default function HabitosPanel({ servicio: inyectado = null }) {
           <span>{aviso.texto}</span>
           <button type="button" className={estilos.boton} onClick={() => setAviso(null)}>Cerrar</button>
         </div>
+      )}
+
+      {(colaEstado.pendientes.length > 0 || colaEstado.rechazadas.length > 0) && (
+        <Card as="section" id="habitos-cola" titulo="Sin sincronizar" icono="alert">
+          {colaEstado.pendientes.length > 0 && (
+            <p className={estilos.nota}>{colaEstado.pendientes.length} registro(s) de tiempo guardados en este dispositivo esperan conexión. <button type="button" className={estilos.boton} onClick={sincronizar}>Reintentar ahora</button></p>
+          )}
+          {colaEstado.rechazadas.map(o => (
+            <div key={o.op_id} className={`${estilos.aviso} ${estilos.avisoError}`} role="alert">
+              <span>El servidor rechazó un registro del {o.args?.p_fecha}: {o.motivo}</span>
+              <button type="button" className={estilos.boton} onClick={async () => { await servicio.descartarRechazada?.(o.op_id); refrescarCola(); }}>Entendido</button>
+            </div>
+          ))}
+        </Card>
       )}
 
       <Card as="section" id="habitos-semana" titulo="Bienestar de la semana" icono="heart"

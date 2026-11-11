@@ -23,3 +23,15 @@ Proyecto `kztoazvjfwzndeubghey`. Cada etapa se aplicó con autorización expresa
 ## Reversiones
 
 Disponibles y validadas en PostgreSQL 16.15 y 17.11 (`docs/validacion-local-v1.11-pg17`). No se ejecutó ninguna en producción. Revertir la etapa 3 antes que la 2.
+
+## Pruebas de escritura en la app (2026-11-11, datos «PRUEBA»)
+
+- Crear hábito (temporizador, diario, 60 s): fila en `habitos_config` y su versión; 1 operación registrada.
+- Iniciar y finalizar temporizador: el bloqueo de `temporizador_activo` se creó y se liberó; 68 s acreditados en `habito_segmentos` y `habito_tiempo`; el temporizador siguió corriendo tras recargar la página.
+- Guardar objetivo (TANKU, 3 puntos): persistió tras recargar; el balance se calcula contra el objetivo prorrateado (1,3 de 3 a mitad de semana).
+- Life Pulse: Wellbeing 100 % (1 min de 1 min, con tope), Balance 0 % (sin sesiones de Focus completadas), Execution «Sin datos».
+- Cola sin conexión (etapa 4, cliente): registro manual hecho sin conexión → guardado en IndexedDB (`cola-<usuario>`), el servidor sin cambios; tras recargar y volver la conexión se reenvió con la misma `op_id` (120 s manual, 1 operación, historial con 2 entradas).
+
+## Etapa 4 — alcance implementado
+
+Solo cliente (`web/lib/cola/cola.js`, `HabitosPanel`): cola IndexedDB aislada por usuario para los registros manuales de hábitos (D3-13); envío en orden de `seq` con la misma `op_id`; fallos de red o sesión conservan todo; los rechazos del servidor se conservan y se muestran hasta que el usuario los marca. **No** implementa T-9 (umbrales de reloj), la resolución de concurrencia entre dispositivos ni `operaciones_aplicar` (sin cambios en Supabase): T-9 sigue pendiente.
