@@ -5,6 +5,17 @@
 -- Antes de cualquier ejecución: etapa 0 (verificación de roles y permisos) y autorización expresa por etapa.
 -- ============================================================================
 begin;
+
+-- Bloqueos de temporizadores de hábito. temporizador_activo es de la etapa 2 y NO se elimina aquí; si se borran las tablas de hábitos
+-- con un temporizador activo, su fila de bloqueo (tipo = 'habito') quedaría huérfana (ref_id apuntando a una tabla que ya no existe)
+-- y bloquearía iniciar Focus de forma permanente. Se eliminan ANTES de borrar las tablas. Solo filas con tipo = 'habito': los bloqueos
+-- de Focus y de descansos no se modifican.
+-- PÉRDIDA DE DATOS (esta reversión es destructiva): se pierden todos los hábitos nuevos, sus programaciones, temporizadores, segmentos,
+-- tiempos, historial y los objetivos semanales. El tramo que un temporizador de hábito llevaba abierto también se pierde (no se acredita).
+-- Las filas de operaciones con tipos habito_* se conservan (diario de la etapa 2) y apuntan a objetos que ya no existen.
+lock table public.temporizador_activo in share row exclusive mode;
+delete from public.temporizador_activo where tipo = 'habito';
+
 drop function if exists public.habito_registrar_manual(uuid, uuid, bigint, uuid, date, integer);
 drop function if exists public.habito_timer_cancelar(uuid, uuid, bigint, uuid);
 drop function if exists public.habito_timer_finalizar(uuid, uuid, bigint, uuid);

@@ -9,6 +9,7 @@ Fecha: 9 nov 2026. Base: `docs/DISENO-TECNICO-FASE-3-v1.11.md`, las aprobaciones
 - **T-7b-1 y T-7b-3 (aprobadas):** `objetivos_semana_cerrada` no actúa cuando `pg_trigger_depth() > 1`; el lunes de la semana se calcula con la nueva función `lunes_semana_bogota(instante)`.
 - **T-8c (aprobada):** `REVOKE ALL` más concesión explícita en las tablas de solo lectura; sin `TRUNCATE`, `REFERENCES` ni `TRIGGER` residuales.
 - **Defecto corregido en la reversión dura de la etapa 3:** se borraba la función del disparador antes que la tabla; ahora se borra después.
+- **Reversiones de la etapa 3 corregidas (10 nov 2026):** un temporizador de hábito activo dejaba su bloqueo en `temporizador_activo` y bloqueaba Focus (suave: no se podía cerrar; dura: fila huérfana). Ahora la suave lo finaliza acreditando el tiempo y la dura elimina el bloqueo antes de borrar las tablas; la suave también quita la edición de `objetivos_atencion` y `habitos_config`. Ver §3.S, §3.D y §3.R. `etapa3_aplicar.sql` no cambió.
 - **T-9 sigue pendiente.** No se implementó la etapa 4 ni umbrales de reloj.
 
 **Cambios de la v1.10 respecto de la v1.9 (la v1.8 y la v1.9 se conservan intactas):**
@@ -1851,9 +1852,37 @@ Notas de diseño:
 - **T-3:** cancelar un temporizador de hábito descarta solo el tramo en curso; los segmentos ya cerrados o pausados quedan acreditados (aprobado).
 - **T-13:** `habito_timer_iniciar` exige `modo_registro = 'temporizador'`; el registro manual siempre está disponible y `habito_registrar_manual` lo rechaza con `sin_ocurrencia` cuando no hay ocurrencia programada para esa fecha (aprobado).
 
-### 3.S Reversión suave
+### 3.S Reversión suave (no pierde datos)
+Cierra los temporizadores de hábito **activos** acreditando el tiempo transcurrido, y deja al cliente solo con la **lectura** de sus datos: revoca la ejecución de las 9 RPC de hábitos y la edición directa de `objetivos_atencion` (INSERT, UPDATE, DELETE) y `habitos_config` (UPDATE, incluido el de las columnas `nombre` y `modo_registro`). **Conserva todas las tablas y todos los datos.** No toca Focus, descansos, preferencias ni operaciones. Diferencias con la dura: ver §3.R.
 ```sql
 begin;
+
+-- Temporizadores de hábito ACTIVOS (en curso o pausados). Esta reversión revoca habito_timer_pausar/finalizar/cancelar, así que un
+-- temporizador activo no se podría cerrar después, y su bloqueo en temporizador_activo (una fila por usuario) impediría iniciar
+-- Focus para siempre. Por eso se cierran aquí, ANTES de revocar los permisos:
+--   * En curso: el tramo abierto se cierra con la misma función que usa habito_timer_finalizar (_cerrar_tramo): se parte por día local
+--     (America/Bogota) y se acredita en habito_segmentos / habito_tiempo / habito_tiempo_historial solo en fechas con ocurrencia.
+--     No se pierde el tiempo transcurrido.
+--   * Pausado: no tiene tramo abierto; solo se finaliza.
+--   * Cada temporizador pasa a 'finalizado' y se elimina su bloqueo. Solo se tocan filas con tipo = 'habito': los bloqueos de Focus
+--     y de descansos no se modifican. Después no queda ninguna fila 'habito' en temporizador_activo.
+-- No se registra fila en operaciones (no es una acción del usuario). Sin pérdida de datos.
+lock table public.temporizador_activo, public.habito_temporizadores in share row exclusive mode;
+do $$
+declare
+  t public.habito_temporizadores;
+begin
+  for t in select * from public.habito_temporizadores where estado in ('en_curso', 'pausado') order by iniciado_en for update loop
+    if t.estado = 'en_curso' then
+      perform public._cerrar_tramo(t.user_id, t, now(), null, null);
+    end if;
+    update public.habito_temporizadores
+       set estado = 'finalizado', tramo_inicio = null, finalizado_en = now(), version = version + 1
+     where id = t.id;
+  end loop;
+  delete from public.temporizador_activo where tipo = 'habito';   -- también cualquier bloqueo de hábito huérfano
+end $$;
+
 revoke execute on function public.habito_crear(uuid, uuid, bigint, text, text, text, smallint[], integer, date) from authenticated;
 revoke execute on function public.habito_programar(uuid, text, smallint[], integer, date)   from authenticated;
 revoke execute on function public.habito_archivar(uuid, date)                               from authenticated;
@@ -1863,13 +1892,34 @@ revoke execute on function public.habito_timer_reanudar(uuid, uuid, bigint, uuid
 revoke execute on function public.habito_timer_finalizar(uuid, uuid, bigint, uuid)          from authenticated;
 revoke execute on function public.habito_timer_cancelar(uuid, uuid, bigint, uuid)           from authenticated;
 revoke execute on function public.habito_registrar_manual(uuid, uuid, bigint, uuid, date, integer) from authenticated;
+
+-- Edición directa de los datos nuevos. Sin las RPC, el cliente aún podría seguir CREANDO y EDITANDO objetivos semanales
+-- (objetivos_atencion: CRUD) y RENOMBRAR hábitos o cambiar su modo (habitos_config: UPDATE por columna), con lo que la funcionalidad
+-- quedaría a medias. Se revoca la edición y se CONSERVA la lectura (SELECT) y todos los datos; nada se borra.
+--   * objetivos_atencion: se quitan INSERT, UPDATE y DELETE; queda SELECT.
+--   * habitos_config: se quita UPDATE (incluye el privilegio por columna sobre nombre y modo_registro); queda SELECT.
+-- No toca ninguna tabla ni función de Focus, descansos, preferencias ni operaciones: Focus sigue funcionando con sus mismos permisos.
+-- lunes_semana_bogota sigue ejecutable por authenticated: es una función pura que no lee ni escribe datos.
+revoke insert, update, delete on public.objetivos_atencion from authenticated;
+revoke update on public.habitos_config from authenticated;
 commit;
 ```
 
 ### 3.D Reversión dura (destruye hábitos nuevos, tiempos e historial)
-Precondición: exportar todas las tablas `habito*`, `habitos_config*` y `objetivos_atencion`; autorización expresa.
+Precondición: exportar todas las tablas `habito*`, `habitos_config*` y `objetivos_atencion`; autorización expresa. **Es destructiva:** se pierden hábitos, programaciones, temporizadores, segmentos, tiempos, historial y objetivos semanales (detalle en §3.R). Antes de borrar las tablas elimina los bloqueos de temporizadores de hábito de `temporizador_activo` (tabla de la etapa 2, que no se borra) para que no quede una fila huérfana que bloquee Focus.
 ```sql
 begin;
+
+-- Bloqueos de temporizadores de hábito. temporizador_activo es de la etapa 2 y NO se elimina aquí; si se borran las tablas de hábitos
+-- con un temporizador activo, su fila de bloqueo (tipo = 'habito') quedaría huérfana (ref_id apuntando a una tabla que ya no existe)
+-- y bloquearía iniciar Focus de forma permanente. Se eliminan ANTES de borrar las tablas. Solo filas con tipo = 'habito': los bloqueos
+-- de Focus y de descansos no se modifican.
+-- PÉRDIDA DE DATOS (esta reversión es destructiva): se pierden todos los hábitos nuevos, sus programaciones, temporizadores, segmentos,
+-- tiempos, historial y los objetivos semanales. El tramo que un temporizador de hábito llevaba abierto también se pierde (no se acredita).
+-- Las filas de operaciones con tipos habito_* se conservan (diario de la etapa 2) y apuntan a objetos que ya no existen.
+lock table public.temporizador_activo in share row exclusive mode;
+delete from public.temporizador_activo where tipo = 'habito';
+
 drop function if exists public.habito_registrar_manual(uuid, uuid, bigint, uuid, date, integer);
 drop function if exists public.habito_timer_cancelar(uuid, uuid, bigint, uuid);
 drop function if exists public.habito_timer_finalizar(uuid, uuid, bigint, uuid);
@@ -1892,6 +1942,32 @@ drop function if exists public.objetivos_semana_cerrada();   -- después de la t
 drop function if exists public.lunes_semana_bogota(timestamptz);
 commit;
 ```
+
+### 3.R Reversión suave frente a reversión dura (etapa 3)
+
+| Aspecto | Suave (`etapa3_reversion_suave.sql`) | Dura (`etapa3_reversion_dura.sql`) |
+|---|---|---|
+| Qué hace | Cierra los temporizadores de hábito activos, revoca la ejecución de las 9 RPC de hábitos y la edición de `objetivos_atencion` y `habitos_config` | Elimina las 13 funciones y las 7 tablas de la etapa 3, tras borrar los bloqueos de hábito |
+| Datos | **Se conservan todos**; el cliente conserva la lectura | **Se pierden**: hábitos nuevos, programaciones (versiones), temporizadores, segmentos, tiempos, historial de tiempos y objetivos semanales |
+| Temporizador de hábito **en curso** | El tramo abierto **se acredita** (misma lógica que `habito_timer_finalizar`: partido por día local y acreditado solo en fechas con ocurrencia) y el temporizador queda `finalizado` | El tramo abierto **se pierde** junto con la tabla |
+| Temporizador de hábito **pausado** | Pasa a `finalizado`; el tiempo ya cerrado se conserva | Se pierde con la tabla |
+| Bloqueos en `temporizador_activo` | Elimina **solo** los de `tipo = 'habito'` | Elimina **solo** los de `tipo = 'habito'` |
+| Focus y descansos | **No se tocan**: ni sus filas, ni sus bloqueos ni sus permisos | **No se tocan** |
+| `operaciones` (diario de la etapa 2) | Sin cambios; no añade filas | Las filas con tipos `habito_*` se conservan y apuntan a objetos que ya no existen |
+| Acceso del cliente después | Solo `SELECT` sobre sus datos de hábitos y objetivos; sin RPC de hábitos ni edición | Las tablas ya no existen |
+| Reactivar después | Posible volviendo a conceder los privilegios revocados (los `grant` de `etapa3_aplicar.sql`); los datos siguen ahí | No: hay que reaplicar la etapa 3 desde cero, sin los datos |
+| Cuándo usarla | Para desactivar la funcionalidad sin perder nada | Solo tras exportar y con autorización expresa |
+| Orden respecto de la etapa 2 | Revertir la etapa 3 **antes** que la 2 | Revertir la etapa 3 **antes** que la 2 |
+
+**Qué queda tras cada una (comprobación de solo lectura):**
+```sql
+select count(*) from public.temporizador_activo where tipo = 'habito';   -- debe ser 0 tras cualquiera de las dos
+select tipo, count(*) from public.temporizador_activo group by 1;        -- los bloqueos de Focus y descansos siguen ahí
+```
+
+**Limitación conocida:** si una llamada a `habito_timer_iniciar` ya había superado la comprobación de permisos justo antes de la reversión, podría insertar su bloqueo después del commit. Es una ventana mínima (una sola persona usa la aplicación); por eso se recomienda ejecutar la consulta de arriba tras revertir.
+
+**Evidencia (local, no Supabase):** `docs/validacion-local-v1.11-pg17/ejecutar_reversion_temporizadores.ps1` (pruebas `81_*` a `85_*`) valida ambos escenarios con temporizadores activos en PostgreSQL 16.15 y 17.11: tiempo conservado, bloqueos de hábito limpiados, Focus y descansos intactos, Focus iniciable de nuevo y privilegios de edición revocados.
 
 ### 3.V Comprobaciones de solo lectura
 ```sql
