@@ -5,10 +5,6 @@ export const metadata = { title: 'Hábitos' };
 
 // Hábitos nuevos (Fase 3, etapa 3 del SQL v1.11). Independiente de Salud: no toca `habitos` ni `habito_registros`.
 export default function Page() {
-  return (
-    <>
-      <header><div><div className="date">Hábitos nuevos</div><h1>Hábitos</h1></div></header>
-      <HabitosPanel />
-    </>
-  );
+  // El encabezado (título, fecha, resumen y estado de sincronización) lo dibuja el panel.
+  return <HabitosPanel />;
 }
