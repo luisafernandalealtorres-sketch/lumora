@@ -18,6 +18,9 @@ import estilos from './Home.module.css';
 
 const pct = v => `${Math.round(v)} %`;
 
+// Nombres en español de los tres indicadores (las claves del cálculo no cambian).
+const NOMBRE_INDICADOR = { Execution: 'Ejecución', Balance: 'Balance', Wellbeing: 'Bienestar' };
+
 // Focus (principal) y Life Pulse: los dos protagonistas de Home. Datos reales; si la Fase 3 no está activada lo dicen con su estado propio.
 export function BloqueFocus() {
   const t = useTemporizador();
@@ -41,7 +44,7 @@ export function BloqueFocus() {
     const cuenta = inst.cuentaAtras && lectura.restanteS !== null;
     const valor = cuenta ? lectura.restanteS : lectura.transcurridoS;
     const frenteNombre = inst.frenteId ? (FRENTES_DISENO.find(x => x.id === inst.frenteId)?.nombre ?? inst.frenteId) : null;
-    const modalidadNombre = inst.tipo === 'focus' ? (inst.modalidad === 'productivity' ? 'Productivity' : 'Enjoyment') : null;
+    const modalidadNombre = inst.tipo === 'focus' ? (inst.modalidad === 'productivity' ? 'Productividad' : 'Disfrute') : null;
     const intencion = inst.registro?.intencion ?? null;
     return (
       <Card as="section" id="home-focus" titulo={ETIQUETA_TIPO[inst.tipo] + (inst.pausado ? ' en pausa' : ' en curso')} icono="bolt"
@@ -102,8 +105,8 @@ export function BloqueLifePulse({ f3 }) {
       <div className={estilos.anillos}>
         {[['Execution', dia.execution], ['Balance', dia.balance], ['Wellbeing', dia.wellbeing]].map(([n, ind]) => (
           <div key={n} className={estilos.anillo}>
-            <Ring valor={fraccion(ind)} etiqueta={n} tono={n === 'Wellbeing' ? 'exito' : 'primario'} tamano={84} grosor={9}>{ind.valor === null ? '—' : pct(ind.valor)}</Ring>
-            <b>{n}</b><span>{textoEstado(n, ind)}</span>
+            <Ring valor={fraccion(ind)} etiqueta={NOMBRE_INDICADOR[n]} tono={n === 'Wellbeing' ? 'exito' : 'primario'} tamano={84} grosor={9}>{ind.valor === null ? '—' : pct(ind.valor)}</Ring>
+            <b>{NOMBRE_INDICADOR[n]}</b><span>{textoEstado(n, ind)}</span>
           </div>
         ))}
       </div>

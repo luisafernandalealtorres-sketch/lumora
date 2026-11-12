@@ -7,8 +7,8 @@
 
 export const TIPOS_TEMPORIZADOR = ['focus', 'descanso', 'habito'];
 export const MODALIDADES = [
-  { id: 'productivity', nombre: 'Productivity' },
-  { id: 'enjoyment', nombre: 'Enjoyment' },
+  { id: 'productivity', nombre: 'Productividad' },
+  { id: 'enjoyment', nombre: 'Disfrute' },
 ];
 
 /** Valores iniciales de preferencias (§4.1). Coinciden con public._prefs cuando no hay fila. */
