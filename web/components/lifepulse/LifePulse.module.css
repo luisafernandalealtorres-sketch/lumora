@@ -18,7 +18,7 @@
 .activo { background: var(--ds-primary); color: var(--ds-on-primary); border-color: var(--ds-primary); }
 .activo:hover { background: var(--ds-primary); filter: brightness(1.08); }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--ds-space-4); align-items: start; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--ds-space-4); align-items: stretch; }
 .anillo { display: grid; place-items: center; padding: var(--ds-space-3) 0; }
 .detalle { display: grid; gap: var(--ds-space-1); margin: 0 0 var(--ds-space-3); padding: 0; list-style: none; font-size: var(--ds-text-sm); color: var(--ds-text); }
 .nota { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
@@ -30,4 +30,11 @@
 .filtro { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-space-2) var(--ds-space-3); margin: 0; padding: var(--ds-space-3) var(--ds-space-4); background: var(--ds-primary-soft); border-radius: var(--ds-radius-md); font-size: var(--ds-text-sm); color: var(--ds-text); }
 .provisional { margin: 0 0 var(--ds-space-3); padding: var(--ds-space-2) var(--ds-space-3); background: var(--ds-warning-soft); border-radius: var(--ds-radius-md); font-size: var(--ds-text-sm); color: var(--ds-text); }
 
-.nota a { display: inline-block; min-height: 44px; line-height: 44px; }
+
+/* Una línea visible por indicador y la explicación técnica plegada */
+.linea { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+.como summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--ds-primary); font-size: var(--ds-text-sm); font-weight: 600; }
+.como summary:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; border-radius: var(--ds-radius-sm); }
+.como .nota { padding-bottom: var(--ds-space-2); }
+.pie { margin-top: auto; }
+.enlace { display: inline-flex; align-items: center; min-height: 44px; font-size: var(--ds-text-sm); }

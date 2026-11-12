@@ -23,6 +23,8 @@ export function etiquetaPeriodo(tipo, ancla) {
   if (tipo === 'mes') return mesLargo(ancla);
   return `${corto(r.desde)} – ${corto(r.hasta)}`;
 }
+// Nombres en español de los tres indicadores (las claves del cálculo no cambian).
+const NOMBRE_INDICADOR = { Execution: 'Ejecución', Balance: 'Balance', Wellbeing: 'Bienestar' };
 const pct = v => `${Math.round(v)} %`;
 
 function estadoChip(ind, texto) {
@@ -84,7 +86,7 @@ export default function LifePulsePanel({ cargador = null, anclaInicial = null })
       {frente && (
         <p className={estilos.filtro} role="note">
           <Chip frente={frente} tamano="sm">{nombreFrenteActivo(frente)}</Chip>
-          <span>El filtro de frente solo afecta a <b>Balance</b>: los compromisos y los hábitos no están asociados a un frente de diseño, así que Execution y Wellbeing muestran todo.</span>
+          <span>El filtro de frente solo afecta a <b>Balance</b>: los compromisos y los hábitos no están asociados a un frente de diseño, así que Ejecución y Bienestar muestran todo.</span>
           <button type="button" className={estilos.boton} onClick={quitar}>Ver todos los frentes</button>
         </p>
       )}
@@ -97,6 +99,16 @@ export default function LifePulsePanel({ cargador = null, anclaInicial = null })
   );
 }
 
+/** Explicación técnica plegada: no se pierde nada, pero deja de estar siempre a la vista. */
+function Como({ children }) {
+  return (
+    <details className={estilos.como}>
+      <summary>¿Cómo se calcula?</summary>
+      <p className={estilos.nota}>{children}</p>
+    </details>
+  );
+}
+
 function Indicadores({ datos }) {
   const { lifePulse: lp, sinHistorial } = datos;
   const e = lp.execution; const b = lp.balance; const w = lp.wellbeing;
@@ -106,14 +118,15 @@ function Indicadores({ datos }) {
       {lp.enCurso && <p className={estilos.nota} role="note">Período en curso: solo cuentan los días y obligaciones que ya llegaron (el día de hoy incluido). Los tres indicadores son independientes: no se combinan en un puntaje global.</p>}
       {sinHistorial > 0 && <p className={estilos.nota} role="alert">{sinHistorial} compromiso(s) no tienen instantánea de creación en el historial y no se pudieron evaluar.</p>}
       <div className={estilos.grid}>
-        <Card as="section" id="lp-execution" titulo="Execution" icono="check" accion={estadoChip(e, textoEstado('execution', e))}>
-          <div className={estilos.anillo}><Ring valor={fraccion(e)} etiqueta="Execution" tono="primario" tamano={128}>{e.valor === null ? '—' : pct(e.valor)}</Ring></div>
+        <Card as="section" id="lp-execution" titulo="Ejecución" icono="check" accion={estadoChip(e, textoEstado('execution', e))}>
+          <div className={estilos.anillo}><Ring valor={fraccion(e)} etiqueta="Ejecución" tono="primario" tamano={128}>{e.valor === null ? '—' : pct(e.valor)}</Ring></div>
           <ul className={estilos.detalle}>
             <li>Compromisos: <b>{e.T.valor === null ? 'sin información' : `${pct(e.T.valor)} (peso ${e.T.pesoCompletado} de ${e.T.pesoProgramado})`}</b></li>
             <li>Hitos: <b>{e.M.valor === null ? 'sin información' : `${pct(e.M.valor)} (peso ${e.M.pesoCompletado} de ${e.M.pesoProgramado})`}</b></li>
           </ul>
           {e.provisional && <p className={estilos.provisional} role="note">Incluye {e.T.provisionales + e.M.provisionales} obligación(es) que vencen hoy: cuentan como no cumplidas de forma provisional y se consolidan al cierre del día.</p>}
-          <p className={estilos.nota}>E = 0,6 × compromisos + 0,4 × hitos, con peso 3/2/1 según la prioridad vigente al cierre del día de vencimiento. Lo que vence hoy entra desde el inicio del día. Sin fecha límite no cuenta. Las sesiones de Focus no intervienen.</p>
+          <p className={estilos.linea}>Compromisos e hitos que ya vencieron; pesan más los de mayor prioridad.</p>
+          <Como>E = 0,6 × compromisos + 0,4 × hitos, con peso 3/2/1 según la prioridad vigente al cierre del día de vencimiento. Lo que vence hoy entra desde el inicio del día. Sin fecha límite no cuenta. Las sesiones de Focus no intervienen.</Como>
         </Card>
 
         <Card as="section" id="lp-balance" titulo={lp.frenteId ? `Balance · ${nombreFrenteActivo(lp.frenteId)}` : 'Balance'} icono="chart" accion={estadoChip(b, textoEstado('balance', b))}>
@@ -126,18 +139,22 @@ function Indicadores({ datos }) {
               {b.puntosTotales === 0 && b.estado !== 'ok' && <li>Sin puntos registrados.</li>}
             </ul>
           )}
-          <p className={estilos.nota}>Puntos de sesiones de Focus completadas contra el objetivo semanal prorrateado. El exceso no compensa déficits. {b.estado === 'sin_objetivo' ? 'No hay objetivos en este período y no se heredan de otras semanas. ' : ''}<Link href="/atencion">Objetivos</Link></p>
+          <p className={estilos.linea}>Puntos de Focus frente a tu objetivo semanal.{b.estado === 'sin_objetivo' ? ' No hay objetivos en este período.' : ''}</p>
+          <Como>Puntos de sesiones de Focus completadas contra el objetivo semanal prorrateado. El exceso no compensa déficits.{b.estado === 'sin_objetivo' ? ' No hay objetivos en este período y no se heredan de otras semanas.' : ''}</Como>
+          <div className={estilos.pie}><Link href="/atencion" className={estilos.enlace}>Objetivos</Link></div>
         </Card>
 
-        <Card as="section" id="lp-wellbeing" titulo="Wellbeing" icono="heart" accion={estadoChip(w, textoEstado('wellbeing', w))}>
-          <div className={estilos.anillo}><Ring valor={fraccion(w)} etiqueta="Wellbeing" tono="exito" tamano={128}>{w.valor === null ? '—' : pct(w.valor)}</Ring></div>
+        <Card as="section" id="lp-wellbeing" titulo="Bienestar" icono="heart" accion={estadoChip(w, textoEstado('wellbeing', w))}>
+          <div className={estilos.anillo}><Ring valor={fraccion(w)} etiqueta="Bienestar" tono="exito" tamano={128}>{w.valor === null ? '—' : pct(w.valor)}</Ring></div>
           {w.estado === 'ok' ? (
             <ul className={estilos.detalle}>
               <li>Tiempo: <b>{duracionLegible(w.realizadoS)} de {duracionLegible(w.objetivoS)}</b></li>
               <li>Ocurrencias que ya llegaron: <b>{w.ocurrencias}</b></li>
             </ul>
           ) : <p className={estilos.nota}>No hay ocurrencias de hábitos que ya hayan llegado en este período.</p>}
-          <p className={estilos.nota}>Cumplimiento de la duración objetivo de tus hábitos, con tope del 100 % por ocurrencia; una ocurrencia sin tiempo cuenta como 0. No es un diagnóstico de salud. <Link href="/habitos">Hábitos</Link></p>
+          <p className={estilos.linea}>Tiempo de tus hábitos frente a su duración objetivo.</p>
+          <Como>Cumplimiento de la duración objetivo de tus hábitos, con tope del 100 % por ocurrencia; una ocurrencia sin tiempo cuenta como 0. No es un diagnóstico de salud.</Como>
+          <div className={estilos.pie}><Link href="/habitos" className={estilos.enlace}>Hábitos</Link></div>
         </Card>
       </div>
     </>
@@ -157,8 +174,8 @@ export function LifePulseResumen({ cargador = null }) {
       <div className={estilos.resumen}>
         {[['Execution', e, 'primario'], ['Balance', b, 'primario'], ['Wellbeing', w, 'exito']].map(([n, ind, tono]) => (
           <div key={n} className={estilos.mini}>
-            <Ring valor={fraccion(ind)} etiqueta={n} tono={tono} tamano={72} grosor={8}>{ind.valor === null ? '—' : pct(ind.valor)}</Ring>
-            <b>{n}</b><span>{textoEstado(n, ind)}</span>
+            <Ring valor={fraccion(ind)} etiqueta={NOMBRE_INDICADOR[n]} tono={tono} tamano={72} grosor={8}>{ind.valor === null ? '—' : pct(ind.valor)}</Ring>
+            <b>{NOMBRE_INDICADOR[n]}</b><span>{textoEstado(n, ind)}</span>
           </div>
         ))}
       </div>
