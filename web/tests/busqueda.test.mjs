@@ -27,7 +27,7 @@ test('consulta vacía devuelve todo en el orden original', () => {
 
 test('buscar sobre la navegación real', () => {
   const nav = ELEMENTOS.filter(e => !e.soloDesarrollo);
-  assert.equal(buscar(nav, 'GASTOS')[0].id, 'gastos');
+  assert.equal(buscar(nav, 'GASTOS')[0].id, 'finanzas');   // Gastos vive dentro de Finanzas
   assert.equal(buscar(nav, 'plata')[0].id, 'finanzas');
   assert.equal(buscar(nav, 'jornada')[0].id, 'jornada');
   assert.equal(buscar(nav, 'inteligencia')[0].id, 'asistente');

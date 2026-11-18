@@ -48,8 +48,8 @@ test('las escrituras usan las tablas y columnas de los módulos heredados', asyn
   assert.deepEqual(Object.keys(c.llamadas[1].insert).sort(), ['categoria', 'fecha', 'frente', 'lugar', 'valor_cop']);
   assert.deepEqual(Object.keys(c.llamadas[2].insert).sort(), ['actualizado_en', 'contenido', 'etiquetas', 'frente', 'titulo']);
   // Coinciden con lo que escriben los módulos heredados
-  const gastos = readFileSync(new URL('../components/Gastos.js', import.meta.url), 'utf8');
-  assert.match(gastos, /fecha: f\.fecha, lugar: .*categoria: f\.categoria, valor_cop: valor, frente: f\.frente/);
+  const gastos = readFileSync(new URL('../components/finanzas/FinanzasPanel.js', import.meta.url), 'utf8');
+  assert.match(gastos, /fecha: fg\.fecha, lugar: .*categoria: fg\.categoria, valor_cop: valor, frente: fg\.frente/);
   const cerebro = readFileSync(new URL('../components/Cerebro.js', import.meta.url), 'utf8');
   assert.match(cerebro, /titulo: f\.titulo\.trim\(\).*contenido:.*etiquetas:.*frente: f\.frente, actualizado_en/s);
 });

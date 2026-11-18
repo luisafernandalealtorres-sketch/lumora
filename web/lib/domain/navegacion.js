@@ -1,6 +1,7 @@
 // Navegación del shell. Fuente única de grupos, elementos y rutas.
 //
-// - La agrupación es VISUAL: las rutas siguen siendo planas (/metas, /gastos…).
+// - La agrupación es VISUAL: las rutas siguen siendo planas (/metas, /finanzas…).
+// - Un elemento puede tener : rutas que conducen a él (/gastos abre Finanzas en la pestaña Gastos).
 //   Ninguna ruta lleva el nombre de un grupo.
 // - Un elemento con `accion` no es una ruta: abre un panel (el asistente).
 // - `soloDesarrollo` oculta el elemento en producción (el laboratorio).
@@ -21,8 +22,7 @@ export const ELEMENTOS = [
   { id: 'habitos', nombre: 'Hábitos', ruta: '/habitos', grupo: 'mi-vida', icono: 'check', claves: ['habito', 'rutina', 'bienestar', 'wellbeing', 'tiempo'] },
   { id: 'atencion', nombre: 'Atención', ruta: '/atencion', grupo: 'mi-vida', icono: 'target', claves: ['balance', 'objetivos', 'puntos', 'semanal', 'frentes'] },
   { id: 'metas', nombre: 'Metas', ruta: '/metas', grupo: 'mi-vida', icono: 'target', claves: ['objetivos', 'proyectos', 'avance'], barraMovil: true },
-  { id: 'finanzas', nombre: 'Finanzas', ruta: '/finanzas', grupo: 'mi-vida', icono: 'wallet', claves: ['plata', 'dinero', 'presupuesto', 'ingresos', 'deudas', 'recurrentes'] },
-  { id: 'gastos', nombre: 'Gastos', ruta: '/gastos', grupo: 'mi-vida', icono: 'trendDown', padre: 'finanzas', claves: ['recibos', 'compras', 'categorias'] },
+  { id: 'finanzas', nombre: 'Finanzas', ruta: '/finanzas', grupo: 'mi-vida', icono: 'wallet', alias: ['/gastos'], claves: ['plata', 'dinero', 'gastos', 'presupuesto', 'ingresos', 'deudas', 'recurrentes', 'recibos', 'compras', 'categorias'] },
   { id: 'salud', nombre: 'Salud', ruta: '/salud', grupo: 'mi-vida', icono: 'heart', claves: ['habitos', 'medidas', 'bienestar', 'ejercicio'] },
   { id: 'jornada', nombre: 'Jornada', ruta: '/jornada', grupo: 'mi-vida', icono: 'book', claves: ['diario', 'relato', 'noche', 'reflexion'] },
   { id: 'biblioteca', nombre: 'Biblioteca', ruta: '/biblioteca', grupo: 'conocimiento', icono: 'library', claves: ['articulos', 'videos', 'libros', 'lecturas'] },
@@ -68,7 +68,7 @@ function limpiar(ruta) {
 export function itemDeRuta(ruta, { desarrollo = true } = {}) {
   const r = limpiar(ruta);
   const candidatos = ELEMENTOS.filter(e => desarrollo || !e.soloDesarrollo);
-  const exacto = candidatos.find(e => e.ruta === r);
+  const exacto = candidatos.find(e => e.ruta === r || e.alias?.includes(r));
   if (exacto) return exacto;
   return candidatos.filter(e => e.ruta && e.ruta !== '/' && r.startsWith(e.ruta + '/'))
     .sort((a, b) => b.ruta.length - a.ruta.length)[0] ?? null;

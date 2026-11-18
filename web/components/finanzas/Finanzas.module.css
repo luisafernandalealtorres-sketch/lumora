@@ -1,0 +1,83 @@
+/* Finanzas (incluye Gastos): presentación alineada con Home, Hábitos, Focus y Atención. Solo tokens --ds-*. Sin lógica. */
+.rejilla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-4); }
+.col { display: grid; gap: var(--ds-space-4); align-content: start; min-width: 0; }
+@media (min-width: 1100px) {
+  .rejilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; }
+}
+
+/* Tarjetas con profundidad (cristal oscuro en oscuro; blanco con sombra en claro) */
+.bloque { min-width: 0; background: var(--ds-grad-card); border-color: var(--ds-border); box-shadow: var(--ds-shadow-1), inset 0 1px 0 var(--ds-border); }
+
+/* ---- Selector de mes y pestañas ---- */
+.mes select { min-height: 44px; padding: 0 var(--ds-space-3); font: inherit; color: var(--ds-text); background: var(--ds-surface); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md); }
+.mes select:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.pestanas { display: flex; gap: var(--ds-space-2); overflow-x: auto; padding-bottom: var(--ds-space-1); }
+.pestana {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--ds-space-4);
+  font: inherit; font-weight: 600; color: var(--ds-text-2); background: var(--ds-surface); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-pill); cursor: pointer;
+}
+.pestana:hover { background: var(--ds-bg-2); }
+.pestana:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.pestana[aria-selected='true'] { color: var(--ds-on-primary); background: var(--ds-grad-accent); border-color: transparent; box-shadow: 0 4px 16px var(--ds-glow); }
+
+/* ---- Cifras ---- */
+.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--ds-space-3); margin: 0; padding: 0; list-style: none; }
+.cifra { display: grid; gap: 2px; padding: var(--ds-space-4); background: var(--ds-grad-card); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-1), inset 0 1px 0 var(--ds-border); min-width: 0; }
+.cifra b { font-family: var(--ds-font-display); font-size: var(--ds-text-xl); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cifra span { color: var(--ds-text-2); font-size: var(--ds-text-xs); }
+.sinDatos { color: var(--ds-text-2); font-size: var(--ds-text-md); font-weight: 600; }
+.negativo { color: var(--ds-warning); }
+
+.sub { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+.nota { margin: var(--ds-space-2) 0 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+.alerta { color: var(--ds-warning); }
+
+/* ---- Listas y barras ---- */
+.lista { display: grid; margin: 0; padding: 0; list-style: none; }
+.item { display: grid; gap: 2px; padding: var(--ds-space-3) 0; border-top: 1px solid var(--ds-border); min-width: 0; }
+.item:first-child { border-top: 0; padding-top: 0; }
+.fila { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--ds-space-1) var(--ds-space-3); min-width: 0; }
+.nombre { font-weight: 600; color: var(--ds-text); overflow-wrap: anywhere; }
+.dinero { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ds-text); }
+.barras { display: grid; gap: var(--ds-space-3); }
+.barra { display: grid; gap: var(--ds-space-1); }
+
+/* ---- Formularios ---- */
+.form { display: grid; gap: var(--ds-space-3); margin-top: var(--ds-space-4); padding-top: var(--ds-space-4); border-top: 1px solid var(--ds-border); }
+.campo { display: grid; gap: var(--ds-space-1); margin: 0; padding: 0; border: 0; min-width: 0; font-size: var(--ds-text-sm); color: var(--ds-text-2); }
+.campo input, .campo select {
+  width: 100%; min-height: 44px; padding: 0 var(--ds-space-3); font: inherit; color: var(--ds-text);
+  background: var(--ds-bg); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md);
+}
+.campo input:focus-visible, .campo select:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 1px; }
+.dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--ds-space-3); }
+.insertar { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); }
+.insertar .campo { flex: 1 1 140px; }
+
+/* ---- Botones y avisos ---- */
+.boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--ds-space-2);
+  min-height: 44px; padding: 0 var(--ds-space-4); font: inherit; font-weight: 600; text-decoration: none;
+  color: var(--ds-text); background: var(--ds-surface); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md);
+  cursor: pointer; transition: background var(--ds-dur-fast) var(--ds-ease), filter var(--ds-dur-fast) var(--ds-ease);
+}
+.boton:hover:not(:disabled) { background: var(--ds-bg-2); }
+.boton:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.boton:disabled { opacity: 0.55; cursor: not-allowed; }
+.primario { background: var(--ds-grad-accent); color: var(--ds-on-primary); border-color: transparent; box-shadow: 0 4px 16px var(--ds-glow); }
+.primario:hover:not(:disabled) { background: var(--ds-grad-accent); filter: brightness(1.08); }
+.ghost { background: transparent; border-color: transparent; color: var(--ds-text-2); padding: 0 var(--ds-space-3); }
+.acciones { display: flex; flex-wrap: wrap; gap: var(--ds-space-1); }
+.lleno { width: 100%; }
+.error { margin: 0; padding: var(--ds-space-3) var(--ds-space-4); background: var(--ds-danger-soft); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-md); color: var(--ds-text); font-size: var(--ds-text-sm); }
+
+@media (max-width: 767px) {
+  .bloque { padding: var(--ds-space-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton { transition: none; }
+}
+
+.soloLector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.formLimpio { margin-top: 0; padding-top: 0; border-top: 0; }

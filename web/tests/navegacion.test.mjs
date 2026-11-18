@@ -13,7 +13,8 @@ const aqui = dirname(fileURLToPath(import.meta.url));
 const appDir = join(aqui, '..', 'app', '(app)');
 
 test('las trece rutas de negocio (las nueve de la Fase 2 más /focus, /habitos, /atencion y /life-pulse) aparecen exactamente una vez', () => {
-  const rutas = ELEMENTOS.filter(e => e.ruta && !e.soloDesarrollo).map(e => e.ruta);
+  // Las rutas de los elementos más sus alias (/gastos abre Finanzas en la pestaña Gastos)
+  const rutas = ELEMENTOS.filter(e => e.ruta && !e.soloDesarrollo).flatMap(e => [e.ruta, ...(e.alias ?? [])]);
   assert.deepEqual([...rutas].sort(), [...RUTAS_NEGOCIO].sort());
   assert.equal(new Set(rutas).size, rutas.length);
 });
@@ -45,11 +46,12 @@ test('identificadores únicos, grupos válidos e iconos existentes', () => {
   }
 });
 
-test('los cuatro grupos de producción y Gastos subordinado a Finanzas', () => {
+test('los cuatro grupos de producción; Gastos vive dentro de Finanzas como alias', () => {
   const g = gruposConElementos({ desarrollo: false });
   assert.deepEqual(g.map(x => x.id), ['inicio', 'mi-vida', 'conocimiento', 'asistente']);
-  assert.deepEqual(g.find(x => x.id === 'mi-vida').elementos.map(e => e.id), ['focus', 'habitos', 'atencion', 'metas', 'finanzas', 'gastos', 'salud', 'jornada']);
-  assert.equal(ELEMENTOS.find(e => e.id === 'gastos').padre, 'finanzas');
+  assert.deepEqual(g.find(x => x.id === 'mi-vida').elementos.map(e => e.id), ['focus', 'habitos', 'atencion', 'metas', 'finanzas', 'salud', 'jornada']);
+  assert.equal(ELEMENTOS.find(e => e.id === 'gastos'), undefined);
+  assert.deepEqual(ELEMENTOS.find(e => e.id === 'finanzas').alias, ['/gastos']);
 });
 
 test('el laboratorio solo existe en desarrollo', () => {
@@ -68,25 +70,25 @@ test('el asistente es una acción, no una ruta', () => {
 test('barra móvil: Home, Panel y Metas; el resto va en Más', () => {
   assert.deepEqual(elementosBarraMovil().map(e => e.id), ['mi-dia', 'panel', 'metas']);
   const mas = elementosMas({ desarrollo: false }).map(e => e.id);
-  assert.deepEqual(mas, ['life-pulse', 'focus', 'habitos', 'atencion', 'finanzas', 'gastos', 'salud', 'jornada', 'biblioteca', 'cerebro', 'asistente']);
+  assert.deepEqual(mas, ['life-pulse', 'focus', 'habitos', 'atencion', 'finanzas', 'salud', 'jornada', 'biblioteca', 'cerebro', 'asistente']);
 });
 
 test('itemDeRuta: exacta, con consulta, con barra final y desconocida', () => {
   assert.equal(itemDeRuta('/').id, 'mi-dia');
   assert.equal(itemDeRuta('/finanzas').id, 'finanzas');
-  assert.equal(itemDeRuta('/gastos?frente=tanku').id, 'gastos');
+  assert.equal(itemDeRuta('/gastos?frente=tanku').id, 'finanzas');   // /gastos es un alias de Finanzas
   assert.equal(itemDeRuta('/metas/').id, 'metas');
   assert.equal(itemDeRuta('/metas/123').id, 'metas');
   assert.equal(itemDeRuta('/no-existe'), null);
   assert.equal(itemDeRuta(undefined).id, 'mi-dia');
 });
 
-test('esActivo: "/" solo es activo en "/" y Gastos no activa Finanzas', () => {
+test('esActivo: "/" solo es activo en "/" y el alias /gastos activa Finanzas', () => {
   const por = id => ELEMENTOS.find(e => e.id === id);
   assert.equal(esActivo(por('mi-dia'), '/'), true);
   assert.equal(esActivo(por('mi-dia'), '/panel'), false);
-  assert.equal(esActivo(por('finanzas'), '/gastos'), false);
-  assert.equal(esActivo(por('gastos'), '/gastos'), true);
+  assert.equal(esActivo(por('finanzas'), '/gastos'), true);
+  assert.equal(esActivo(por('finanzas'), '/finanzas'), true);
   assert.equal(esActivo(por('asistente'), '/'), false);
 });
 
@@ -94,7 +96,7 @@ test('migas por ruta', () => {
   assert.deepEqual(migas('/').map(m => m.nombre), ['Home']);
   assert.deepEqual(migas('/panel').map(m => m.nombre), ['Panel']);
   assert.deepEqual(migas('/metas').map(m => m.nombre), ['Mi vida', 'Metas']);
-  assert.deepEqual(migas('/gastos').map(m => m.nombre), ['Mi vida', 'Finanzas', 'Gastos']);
+  assert.deepEqual(migas('/gastos').map(m => m.nombre), ['Mi vida', 'Finanzas']);
   assert.deepEqual(migas('/cerebro').map(m => m.nombre), ['Conocimiento', 'Cerebro']);
   assert.deepEqual(migas('/nada'), []);
 });

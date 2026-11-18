@@ -1,15 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
-import { verificar } from '@/lib/consulta';
-import Gastos from '@/components/Gastos';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Page() {
-  const supabase = createClient();
-  const [fr, ga] = await Promise.all([
-    supabase.from('frentes').select('*').order('orden'),
-    supabase.from('gastos').select('*').order('fecha', { ascending: false }).limit(1000),
-  ]);
-  verificar({ frentes: fr, gastos: ga });
-  return <Gastos frentes={fr.data ?? []} inicial={ga.data ?? []} />;
+// Gastos vive dentro de Finanzas. Esta ruta se conserva como alias para que los enlaces y marcadores no se rompan.
+export default function Page({ searchParams }) {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(searchParams ?? {})) if (typeof v === 'string' && k !== 'vista') q.set(k, v);
+  q.set('vista', 'gastos');
+  redirect(`/finanzas?${q.toString()}`);
 }
