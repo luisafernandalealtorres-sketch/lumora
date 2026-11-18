@@ -29,6 +29,6 @@ export function puedeEnviar(id) {
 export const FUTURO_ASISTENTE = [
   'Chat con el contexto de la pantalla donde estás',
   'Memoria de tus frentes y decisiones',
-  'Insights sobre tus metas, gastos y hábitos',
+  'Análisis sobre tus metas, gastos y hábitos',
   'Automatizaciones con tu aprobación previa',
 ];
