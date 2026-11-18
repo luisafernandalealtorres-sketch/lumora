@@ -1,0 +1,79 @@
+/* Panel: presentación alineada con Home, Hábitos, Focus, Atención y Finanzas. Solo tokens --ds-*. Sin lógica. */
+.cifras { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-4); }
+@media (min-width: 1100px) {
+  .cifras { grid-template-columns: minmax(0, 280px) minmax(0, 1fr); align-items: stretch; }
+}
+
+.rejilla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-4); margin-top: var(--ds-space-4); }
+.col { display: grid; gap: var(--ds-space-4); align-content: start; min-width: 0; }
+@media (min-width: 1100px) {
+  .rejilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; }
+}
+
+/* Tarjetas con profundidad */
+.bloque { min-width: 0; background: var(--ds-grad-card); border-color: var(--ds-border); box-shadow: var(--ds-shadow-1), inset 0 1px 0 var(--ds-border); }
+
+/* ---- Avance general ---- */
+.general { display: flex; align-items: center; gap: var(--ds-space-4); min-width: 0; }
+.generalTexto { display: grid; gap: 2px; min-width: 0; }
+.generalTexto b { font-family: var(--ds-font-display); font-size: var(--ds-text-lg); }
+.generalTexto span { color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+
+/* ---- Baldosas ---- */
+.baldosas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ds-space-3); margin: 0; padding: 0; list-style: none; }
+@media (min-width: 640px) {
+  .baldosas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.baldosa { min-width: 0; }
+.enlace {
+  display: grid; gap: 2px; align-content: start; min-height: 44px; height: 100%; padding: var(--ds-space-4); min-width: 0;
+  color: inherit; text-decoration: none; background: var(--ds-grad-card); border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-1), inset 0 1px 0 var(--ds-border);
+  transition: background var(--ds-dur-fast) var(--ds-ease), border-color var(--ds-dur-fast) var(--ds-ease);
+}
+.enlace:hover { border-color: var(--ds-border-strong); }
+.enlace:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.icono { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; margin-bottom: var(--ds-space-1); color: var(--ds-primary); background: var(--ds-primary-soft); border-radius: var(--ds-radius-md); }
+.cifra { font-family: var(--ds-font-display); font-size: var(--ds-text-xl); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sinDatos { color: var(--ds-text-2); font-size: var(--ds-text-md); font-weight: 600; }
+.etiqueta { color: var(--ds-text-2); font-size: var(--ds-text-xs); }
+.ver { color: var(--ds-primary); font-size: var(--ds-text-xs); font-weight: 600; }
+
+/* ---- Listas y barras ---- */
+.lista { display: grid; gap: var(--ds-space-4); margin: 0; padding: 0; list-style: none; }
+.item { display: grid; gap: var(--ds-space-1); min-width: 0; }
+.fila { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--ds-space-1) var(--ds-space-3); min-width: 0; }
+.nombre { display: inline-flex; align-items: center; gap: var(--ds-space-2); font-weight: 600; color: var(--ds-text); overflow-wrap: anywhere; }
+.punto { flex: none; width: 10px; height: 10px; border-radius: var(--ds-radius-pill); background: var(--ds-text-2); }
+.punto[data-frente='tanku'] { background: var(--ds-frente-tanku); }
+.punto[data-frente='ticketcode'] { background: var(--ds-frente-ticketcode); }
+.punto[data-frente='personal'] { background: var(--ds-frente-personal); }
+.punto[data-frente='salud'] { background: var(--ds-frente-salud); }
+.punto[data-frente='familia'] { background: var(--ds-frente-familia); }
+.punto[data-frente='otros'] { background: var(--ds-frente-otros); }
+.valor { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+.top { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); margin: 0 0 var(--ds-space-4); padding: 0; list-style: none; }
+.vacio { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+.sub { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+
+/* ---- Barra apilada Negocio / Personal ---- */
+.apilada { display: flex; height: 12px; overflow: hidden; border-radius: var(--ds-radius-pill); background: var(--ds-bg-2); }
+.tramoNegocio { background: var(--ds-primary); }
+.tramoPersonal { background: var(--ds-frente-personal); }
+.leyenda { display: grid; gap: var(--ds-space-2); margin: var(--ds-space-3) 0 0; padding: 0; list-style: none; }
+.leyenda li { display: flex; align-items: center; justify-content: space-between; gap: var(--ds-space-3); }
+.marca { display: inline-flex; align-items: center; gap: var(--ds-space-2); font-weight: 600; }
+.marca i { width: 10px; height: 10px; border-radius: var(--ds-radius-pill); }
+.marcaNegocio i { background: var(--ds-primary); }
+.marcaPersonal i { background: var(--ds-frente-personal); }
+
+@media (max-width: 767px) {
+  .bloque { padding: var(--ds-space-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enlace { transition: none; }
+}
+
+/* Anula el estilo global de <li> (heredado): aquí cada elemento maneja su propio espacio. */
+.baldosa, .item, .top li, .leyenda li { padding: 0; border: 0; }
