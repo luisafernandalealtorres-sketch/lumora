@@ -54,7 +54,7 @@ export default async function Panel() {
     supabase.from('frentes').select('*').order('orden'),
     supabase.from('pendientes').select('frente,hecho,hecho_en'),
     supabase.from('gastos').select('categoria,valor_cop,frente').gte('fecha', `${mes}-01`),
-    supabase.from('jornadas').select('fecha').order('fecha', { ascending: false }).limit(60),
+    supabase.from('jornadas').select('fecha,relato').order('fecha', { ascending: false }).limit(60),
     supabase.from('biblioteca').select('id', { count: 'exact', head: true }),
     supabase.from('notas').select('frente'),
   ]);
@@ -82,7 +82,8 @@ export default async function Panel() {
   }).filter(f => f.total > 0);
 
   const jornadas = jo.data ?? [];
-  const rachaDias = racha(jornadas.map(j => j.fecha));
+  const conRelato = jornadas.filter(j => j.relato);
+  const rachaDias = racha(conRelato.map(j => j.fecha));
   const notas = no.data ?? [];
   const notasPorFrente = frentes.map(f => ({
     slug: f.slug,
@@ -117,7 +118,7 @@ export default async function Panel() {
           <Baldosa icono="check" valor={total ? abiertos : null} etiqueta="pendientes abiertos" ruta="/" ver="Ver en Home" />
           <Baldosa icono="clock" valor={total ? cerrados7 : null} etiqueta="cerrados en 7 días" ruta="/" ver="Ver en Home" />
           <Baldosa icono="wallet" valor={gastoMes ? cop(gastoMes) : null} etiqueta="gasto del mes" ruta="/finanzas" ver="Ver Finanzas" />
-          <Baldosa icono="flame" valor={jornadas.length ? rachaDias : null} etiqueta="días seguidos de jornada" ruta="/jornada" ver="Ver Jornada" />
+          <Baldosa icono="flame" valor={conRelato.length ? rachaDias : null} etiqueta="días seguidos de jornada" ruta="/jornada" ver="Ver Jornada" />
           <Baldosa icono="library" valor={enBiblioteca || null} etiqueta="en la biblioteca" ruta="/biblioteca" ver="Ver Biblioteca" />
         </ul>
       </div>
