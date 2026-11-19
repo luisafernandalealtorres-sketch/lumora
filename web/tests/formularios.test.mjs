@@ -54,7 +54,7 @@ test('ningún valor depende del orden: no hay datos de la base en este módulo',
 });
 
 // ---- Guardas sobre los componentes: la dependencia del orden no puede volver ----
-const componentes = [...readdirSync(join(RAIZ, 'components')).filter(f => f.endsWith('.js')).map(f => `components/${f}`), 'components/finanzas/FinanzasPanel.js'];
+const componentes = [...readdirSync(join(RAIZ, 'components')).filter(f => f.endsWith('.js')).map(f => `components/${f}`), 'components/finanzas/FinanzasPanel.js', 'components/metas/MetasPanel.js'];
 
 test('ningún componente toma su frente inicial de frentes[0] (el orden de la base)', () => {
   for (const ruta of componentes) {
@@ -66,7 +66,7 @@ test('ningún componente toma su frente inicial de frentes[0] (el orden de la ba
 test('cada formulario declara su frente inicial con frenteInicial(...)', () => {
   const esperado = {
     'components/Pendientes.js': ['miDiaPendiente'],
-    'components/Metas.js': ['metaNueva'],
+    'components/metas/MetasPanel.js': ['metaNueva'],
     'components/Cerebro.js': ['notaNueva', 'notaEdicionSinFrente'],
     'components/finanzas/FinanzasPanel.js': ['gastoNuevo', 'ingresoNuevo', 'recurrenteNuevo'],
   };
@@ -83,7 +83,7 @@ test('todas las claves definidas se usan en algún componente (no quedan valores
 });
 
 test("ningún formulario fija un frente escrito a mano ('personal' o un slug) como valor inicial", () => {
-  for (const ruta of ['components/finanzas/FinanzasPanel.js', 'components/Metas.js', 'components/Cerebro.js', 'components/Pendientes.js']) {
+  for (const ruta of ['components/finanzas/FinanzasPanel.js', 'components/metas/MetasPanel.js', 'components/Cerebro.js', 'components/Pendientes.js']) {
     const texto = readFileSync(join(RAIZ, ruta), 'utf8').replace(/\/\/.*$/gm, '');
     assert.ok(!/frente:\s*'[a-z-]+'/.test(texto), `${ruta} tiene un frente escrito a mano`);
     assert.ok(!/useState\(\s*'personal'\s*\)/.test(texto), `${ruta} inicia el estado con 'personal' escrito a mano`);
