@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { verificar } from '@/lib/consulta';
-import Salud from '@/components/Salud';
+import SaludPanel from '@/components/salud/SaludPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,7 @@ export default async function Page() {
   ]);
   verificar({ habitos: h, registros: r, medidas: m, objetivos: o });
   return (
-    <Salud
+    <SaludPanel
       userId={user.id}
       habitos={h.data ?? []}
       registros={r.data ?? []}

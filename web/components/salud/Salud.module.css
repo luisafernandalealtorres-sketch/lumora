@@ -1,0 +1,107 @@
+/* Salud: presentación alineada con Home, Hábitos, Finanzas y Metas. Solo tokens --ds-*. Sin lógica. */
+.rejilla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-4); }
+.col { display: grid; gap: var(--ds-space-4); align-content: start; min-width: 0; }
+@media (min-width: 1100px) {
+  .rejilla { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; }
+}
+.angosto { max-width: 640px; }
+
+.bloque { min-width: 0; background: var(--ds-grad-card); border-color: var(--ds-border); box-shadow: var(--ds-shadow-1), inset 0 1px 0 var(--ds-border); }
+
+/* ---- Pestañas ---- */
+.pestanas { display: flex; gap: var(--ds-space-2); overflow-x: auto; padding-bottom: var(--ds-space-1); scrollbar-width: none; }
+.pestanas::-webkit-scrollbar { display: none; }
+.pestana {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--ds-space-4);
+  font: inherit; font-weight: 600; color: var(--ds-text-2); background: var(--ds-surface); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-pill); cursor: pointer;
+}
+.pestana:hover { background: var(--ds-bg-2); }
+.pestana:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.pestana[aria-selected='true'] { color: var(--ds-on-primary); background: var(--ds-grad-accent); border-color: transparent; box-shadow: 0 4px 16px var(--ds-glow); }
+
+/* ---- Listas y tarjetas ---- */
+.lista { display: grid; gap: var(--ds-space-3); margin: 0; padding: 0; list-style: none; }
+.habito { display: flex; align-items: center; gap: var(--ds-space-4); min-width: 0; }
+.datos { display: grid; gap: var(--ds-space-1); min-width: 0; flex: 1; }
+.nombre { font-weight: 700; color: var(--ds-text); overflow-wrap: anywhere; }
+.titulo { margin: 0; font-size: var(--ds-text-md); font-weight: 700; color: var(--ds-text); overflow-wrap: anywhere; }
+.sub { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); overflow-wrap: anywhere; }
+.vacio { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
+.dinero { font-variant-numeric: tabular-nums; }
+.casilla { display: flex; align-items: center; gap: var(--ds-space-3); min-height: 44px; cursor: pointer; }
+.casilla input { flex: none; width: 22px; height: 22px; accent-color: var(--ds-primary); }
+.cantidad { display: grid; gap: var(--ds-space-1); }
+.campoCantidad { display: flex; align-items: center; gap: var(--ds-space-2); }
+.campoCantidad input {
+  width: 96px; min-height: 44px; padding: 0 var(--ds-space-3); font: inherit; color: var(--ds-text);
+  background: var(--ds-bg); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md);
+}
+.campoCantidad input:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 1px; }
+
+/* ---- Tira de 7 días ---- */
+.tira { display: flex; gap: var(--ds-space-2); margin: var(--ds-space-3) 0 0; padding: 0; list-style: none; }
+.dia { display: grid; justify-items: center; gap: 2px; flex: 1; min-width: 0; }
+.marca { display: inline-flex; align-items: center; justify-content: center; width: 100%; max-width: 32px; height: 24px; color: var(--ds-on-primary); background: var(--ds-border); border-radius: var(--ds-radius-sm); }
+.diaOk .marca { background: var(--ds-primary); }
+.inicial { font-size: var(--ds-text-xs); color: var(--ds-text-2); }
+
+/* ---- Medidas ---- */
+.selectorMedida select {
+  min-height: 44px; padding: 0 var(--ds-space-3); font: inherit; color: var(--ds-text);
+  background: var(--ds-surface); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md);
+}
+.selectorMedida select:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.grafica { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto var(--ds-space-2); }
+.gLinea { stroke: var(--ds-border); }
+.gTexto { fill: var(--ds-text-2); }
+.gMeta { stroke: var(--ds-warning); }
+.gMetaTexto { fill: var(--ds-warning); }
+.gSerie { stroke: var(--ds-primary); }
+.gPunto { fill: var(--ds-primary); }
+.recientes { display: grid; gap: var(--ds-space-2); margin: 0; padding: 0; list-style: none; }
+.fila { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--ds-space-1) var(--ds-space-3); min-width: 0; }
+
+/* ---- Formularios ---- */
+.form { display: grid; gap: var(--ds-space-3); }
+.dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--ds-space-3); }
+.campo { display: grid; gap: var(--ds-space-1); margin: 0; padding: 0; border: 0; min-width: 0; font-size: var(--ds-text-sm); color: var(--ds-text-2); }
+.campo input, .campo select {
+  width: 100%; min-height: 44px; padding: 0 var(--ds-space-3); font: inherit; color: var(--ds-text);
+  background: var(--ds-bg); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md);
+}
+.campo input:focus-visible, .campo select:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 1px; }
+
+/* ---- Botones y avisos ---- */
+.boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--ds-space-2);
+  min-height: 44px; padding: 0 var(--ds-space-4); font: inherit; font-weight: 600; text-decoration: none;
+  color: var(--ds-text); background: var(--ds-surface); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md);
+  cursor: pointer; transition: background var(--ds-dur-fast) var(--ds-ease), filter var(--ds-dur-fast) var(--ds-ease);
+}
+.boton:hover:not(:disabled) { background: var(--ds-bg-2); }
+.boton:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.primario { background: var(--ds-grad-accent); color: var(--ds-on-primary); border-color: transparent; box-shadow: 0 4px 16px var(--ds-glow); }
+.primario:hover:not(:disabled) { background: var(--ds-grad-accent); filter: brightness(1.08); }
+.ghost { background: transparent; border-color: transparent; color: var(--ds-text-2); padding: 0 var(--ds-space-3); }
+.peligro { background: var(--ds-danger); color: var(--ds-on-primary); border-color: transparent; }
+.peligro:hover:not(:disabled) { background: var(--ds-danger); filter: brightness(1.08); }
+.peligroSuave { color: var(--ds-danger); }
+.lleno { width: 100%; }
+.acciones { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); margin-top: var(--ds-space-3); }
+.confirmar { display: grid; gap: var(--ds-space-2); margin-top: var(--ds-space-3); padding: var(--ds-space-3) var(--ds-space-4); background: var(--ds-danger-soft); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-md); }
+.confirmar p { margin: 0; font-size: var(--ds-text-sm); color: var(--ds-text); }
+.confirmar .acciones { margin-top: 0; }
+.ok { margin: 0; color: var(--ds-success); font-size: var(--ds-text-sm); font-weight: 600; }
+.error { margin: 0; padding: var(--ds-space-3) var(--ds-space-4); background: var(--ds-danger-soft); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-md); color: var(--ds-text); font-size: var(--ds-text-sm); }
+.soloLector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Anula el estilo global heredado de <li>: aquí cada elemento maneja su propio espacio. */
+.lista > li, .recientes > li, .tira > li { padding: 0; border: 0; }
+
+@media (max-width: 767px) {
+  .bloque { padding: var(--ds-space-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boton { transition: none; }
+}
