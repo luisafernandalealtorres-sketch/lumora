@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import HomeApp from '@/components/home/HomeApp';
 import { horaBogota, sumarDias } from '@/lib/domain/fechas';
 import { leerFuente } from '@/lib/domain/estadosHome';
+import { tablaFuentesInexistente } from '@/lib/domain/agenda';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,7 @@ export default async function Home() {
     habitos: supabase.from('habitos').select('*').eq('activo', true).order('creado_en'),
     registros_habitos: supabase.from('habito_registros').select('habito_id,fecha,valor').gte('fecha', desdeHabitos),
     agenda: supabase.from('agenda_hoy').select('*').eq('fecha', hoy).order('inicio'),
+    agenda_fuentes: supabase.from('calendarios_fuente').select('calendario_id,nombre,frente_id,estado,ultima_sincronizacion,ultimo_error'),
     correos: supabase.from('correos_hoy').select('*').eq('fecha', hoy).order('urgente', { ascending: false }),
     resumen: supabase.from('resumen_dia').select('*').eq('fecha', hoy).maybeSingle(),
   };
@@ -37,8 +39,10 @@ export default async function Home() {
   const errores = [];
   nombres.forEach((n, i) => {
     const f = leerFuente(respuestas[i]);
-    if (!f.ok) errores.push(n);
-    datos[n === 'registros_habitos' ? 'registrosHabitos' : n] = f.ok ? f.data : null;
+    // Las fuentes de calendario pueden no existir todavía (migración sin aplicar): eso no es un error, la agenda queda «no conectada».
+    if (!f.ok && !(n === 'agenda_fuentes' && tablaFuentesInexistente(f.error))) errores.push(n);
+    const clave = n === 'registros_habitos' ? 'registrosHabitos' : n === 'agenda_fuentes' ? 'agendaFuentes' : n;
+    datos[clave] = f.ok ? f.data : null;
   });
   const frentes = datos.frentes ?? [];
   delete datos.frentes;

@@ -204,10 +204,12 @@ export function FranjaFuentes({ estados }) {
       <ul>
         {estados.map(e => (
           <li key={e.fuente.id} data-estado={e.estado}>
-            {e.estado === 'datos' ? <Chip tono="exito" tamano="sm">{e.fuente.nombre}: con datos</Chip>
+            {e.estado === 'datos' ? <Chip tono={e.vencida ? 'advertencia' : 'exito'} tamano="sm">{e.fuente.nombre}: con datos{e.vencida ? ' (desactualizada)' : ''}</Chip>
               : e.estado === 'no_conectada' ? <Chip tono="advertencia" tamano="sm" icono="alert">{e.fuente.nombre}: fuente no conectada</Chip>
+              : e.estado === 'desactualizada' ? <Chip tono="advertencia" tamano="sm" icono="alert">{e.fuente.nombre}: desactualizada</Chip>
               : e.estado === 'sin_registros' ? <Chip tono="neutro" tamano="sm">{e.fuente.nombre}: sin registros</Chip>
               : <Chip tono="peligro" tamano="sm" icono="alert">{e.fuente.nombre}: error de lectura</Chip>}
+            {e.nota && <span className={estilos.nota}> {e.nota}</span>}
           </li>
         ))}
       </ul>

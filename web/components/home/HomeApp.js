@@ -2,6 +2,7 @@
 import { useMemo } from 'react';
 import { esNegocio } from '@/lib/format';
 import { FUENTES_HOME, estadoFuente } from '@/lib/domain/fuentes';
+import { estadoAgenda, haceCuanto, eventosDeHoy } from '@/lib/domain/agenda';
 import { resumenPendientes, prioridadesHoy, avanceMetas, resumenGastos, resumenJornada, resumenHabitosSalud, recurrentesProximos } from '@/lib/domain/resumen';
 import { mapaFrentes } from '@/lib/domain/mapaFrentes';
 import { generarAlertas } from '@/lib/domain/alertas';
@@ -52,7 +53,15 @@ export default function HomeApp({ datos, errores, frentes }) {
 
   const conError = (fuente, filas, nombre) => estadoFuente({ fuente, filas, error: err(nombre) ? true : null });
   const estResumen = conError(FUENTES_HOME.resumen, datos.resumen, 'resumen');
-  const fuentes = [conError(FUENTES_HOME.agenda, datos.agenda, 'agenda'), conError(FUENTES_HOME.correos, datos.correos, 'correos'), estResumen];
+  // Agenda: estado honesto según la última sincronización de los calendarios (ver lib/domain/agenda.js).
+  const infoAgenda = estadoAgenda({ filas: datos.agenda, fuentes: datos.agendaFuentes, error: err('agenda') ? true : null, ahoraMs });
+  const notaAgenda = [
+    infoAgenda.ultima && infoAgenda.estado !== 'error' ? `sincronizada ${haceCuanto(infoAgenda.ultima, ahoraMs)}` : null,
+    infoAgenda.pendientes.length ? `falta conectar: ${infoAgenda.pendientes.join(', ')}` : null,
+    infoAgenda.conError.length ? `con error: ${infoAgenda.conError.join(', ')}` : null,
+  ].filter(Boolean).join(' · ');
+  const estAgenda = { ...infoAgenda, fuente: FUENTES_HOME.agenda, nota: notaAgenda };
+  const fuentes = [estAgenda, conError(FUENTES_HOME.correos, datos.correos, 'correos'), estResumen];
   const alertaDestacada = alertas.items.find(a => a.tipo === 'alerta') ?? null;
   const erroresKpi = [
     ...(err('pendientes') ? ['pendientes'] : []), ...(err('metas') || err('hitos') ? ['metas'] : []),
@@ -71,7 +80,7 @@ export default function HomeApp({ datos, errores, frentes }) {
           <HoyPrioridades
             prioridades={calc.prioridades} resumen={calc.resumenPend} errorPendientes={err('pendientes')}
             frentes={frentes} pendientesInicial={datos.pendientes ?? []} metas={(datos.metas ?? []).filter(m => m.estado === 'activa')}
-            agenda={estadoFuente({ fuente: FUENTES_HOME.agenda, filas: datos.agenda }).estado === 'datos' ? datos.agenda : []}
+            agenda={infoAgenda.estado === 'datos' ? eventosDeHoy(datos.agenda) : []} agendaInfo={infoAgenda}
             correos={estadoFuente({ fuente: FUENTES_HOME.correos, filas: datos.correos }).estado === 'datos' ? datos.correos : []}
             actividad={calc.actividad} ahoraMs={ahoraMs}
           />
