@@ -15,10 +15,12 @@ function Form() {
   return (
     <div className="login">
       <h1>Cerebro de Lu</h1>
+      <p className="sub">Aplicación personal para organizar el día: pendientes, metas, gastos, hábitos y agenda.</p>
       <p className="sub">Entra con tu cuenta de Google.</p>
       {error === 'no-autorizado' && <div className="err">Esta cuenta no tiene acceso.</div>}
       {error === 'fallo' && <div className="err">No se pudo iniciar sesión. Intenta de nuevo.</div>}
       <button className="btn" onClick={entrar}>Entrar con Google</button>
+      <p className="sub"><a href="/privacidad">Política de privacidad</a></p>
     </div>
   );
 }

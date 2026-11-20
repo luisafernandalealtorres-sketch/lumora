@@ -23,7 +23,8 @@ export async function middleware(request) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const publica = path.startsWith('/login') || path.startsWith('/auth');
+  // /privacidad es pública a propósito: Google exige que la política de privacidad se pueda abrir sin iniciar sesión.
+  const publica = path.startsWith('/login') || path.startsWith('/auth') || path === '/privacidad';
 
   const permitido = process.env.ALLOWED_EMAIL;
   if (user && permitido && user.email?.toLowerCase() !== permitido.toLowerCase()) {
