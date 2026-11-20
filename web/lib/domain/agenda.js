@@ -84,6 +84,15 @@ export function estadoAgenda({ filas, fuentes, error = null, ahoraMs, vigenciaH 
   return { ...base, estado: vencida ? 'desactualizada' : 'sin_registros', vencida };
 }
 
+/**
+ * ¿Hay que descartar este evento de Google Calendar? Sí si está cancelado o si el propio usuario lo rechazó.
+ * No mira a los demás invitados.
+ */
+export function descartarEvento(evento) {
+  if (!evento || evento.status === 'cancelled') return true;
+  return (evento.attendees ?? []).some(a => a?.self === true && a?.responseStatus === 'declined');
+}
+
 /** ¿Es un evento de todo el día? Empieza a las 00:00 de Bogotá y dura un número exacto de días. */
 export function esTodoElDia(e) {
   if (!e?.inicio || !e?.fin) return false;

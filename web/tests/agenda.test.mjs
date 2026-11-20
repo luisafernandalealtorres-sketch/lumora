@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { frenteDeCalendario, normalizarEvento, estadoAgenda, haceCuanto, eventosDeHoy, esTodoElDia, tablaFuentesInexistente, VIGENCIA_HORAS } from '../lib/domain/agenda.js';
+import { frenteDeCalendario, normalizarEvento, estadoAgenda, haceCuanto, eventosDeHoy, esTodoElDia, descartarEvento, tablaFuentesInexistente, VIGENCIA_HORAS } from '../lib/domain/agenda.js';
 
 const AHORA = Date.parse('2026-11-19T15:00:00Z');
 const hace = h => new Date(AHORA - h * 3600000).toISOString();
@@ -113,6 +113,14 @@ test('eventos de hoy: ordenados por hora y filtrados por frente sin mutar la lis
   assert.deepEqual(eventosDeHoy(filas).map(e => e.id), [1, 3, 2]);
   assert.deepEqual(eventosDeHoy(filas, 'tanku').map(e => e.id), [1]);
   assert.deepEqual(filas.map(e => e.id), [2, 1, 3]);
+});
+
+test('se descartan los eventos cancelados y los que el propio usuario rechazó; no los rechazados por otros', () => {
+  assert.equal(descartarEvento({ id: 'a', status: 'cancelled' }), true);
+  assert.equal(descartarEvento(null), true);
+  assert.equal(descartarEvento({ id: 'b', status: 'confirmed', attendees: [{ self: true, responseStatus: 'declined' }] }), true);
+  assert.equal(descartarEvento({ id: 'c', status: 'confirmed', attendees: [{ responseStatus: 'declined' }, { self: true, responseStatus: 'accepted' }] }), false);
+  assert.equal(descartarEvento({ id: 'd', status: 'confirmed' }), false);
 });
 
 test('evento de todo el día: 00:00 de Bogotá y duración exacta en días', () => {
