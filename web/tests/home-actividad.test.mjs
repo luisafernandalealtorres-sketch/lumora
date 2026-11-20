@@ -48,7 +48,12 @@ test('Home (centro de control) compone los bloques aprobados y conserva Pendient
   for (const s of ['BloqueFocus', 'BloqueLifePulse', 'ProximasAcciones', 'HoyPrioridades', 'MapaFrentes', 'ResumenEjecutivo', 'FranjaFuentes', 'AccesosRapidos', 'Encabezado']) assert.ok(app.includes(s), s);
   const hoy = readFileSync(new URL('../components/home/HoyPrioridades.js', import.meta.url), 'utf8');
   assert.ok(hoy.includes('<Pendientes '), 'componente heredado Pendientes');
-  assert.ok(hoy.includes('Agenda de hoy') && hoy.includes('Correos para revisar'));
+  assert.ok(hoy.includes('Correos para revisar'));
+  // La agenda tiene su propia tarjeta (AgendaHoy), separada de «Hoy», y no vuelve a mezclarse con los pendientes.
+  assert.ok(app.includes('AgendaHoy'), 'Home compone la tarjeta AgendaHoy');
+  const agenda = readFileSync(new URL('../components/home/AgendaHoy.js', import.meta.url), 'utf8');
+  assert.ok(agenda.includes('Agenda de hoy') && agenda.includes('Mañana'));
+  assert.ok(!hoy.includes('Agenda de hoy'), '«Hoy» ya no contiene la agenda');
   const page = readFileSync(new URL('../app/(app)/page.js', import.meta.url), 'utf8');
   assert.ok(page.includes('HomeApp') && page.includes('leerFuente'));
 });

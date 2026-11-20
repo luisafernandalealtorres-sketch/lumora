@@ -28,7 +28,7 @@ export default async function Home() {
     biblioteca: supabase.from('biblioteca').select('id,titulo,guardado_en').order('guardado_en', { ascending: false }).limit(8),
     habitos: supabase.from('habitos').select('*').eq('activo', true).order('creado_en'),
     registros_habitos: supabase.from('habito_registros').select('habito_id,fecha,valor').gte('fecha', desdeHabitos),
-    agenda: supabase.from('agenda_hoy').select('*').eq('fecha', hoy).order('inicio'),
+    agenda: supabase.from('agenda_hoy').select('*').in('fecha', [hoy, sumarDias(hoy, 1)]).order('inicio'),
     agenda_fuentes: supabase.from('calendarios_fuente').select('calendario_id,nombre,frente_id,estado,ultima_sincronizacion,ultimo_error'),
     correos: supabase.from('correos_hoy').select('*').eq('fecha', hoy).order('urgente', { ascending: false }),
     resumen: supabase.from('resumen_dia').select('*').eq('fecha', hoy).maybeSingle(),

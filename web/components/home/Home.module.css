@@ -36,16 +36,16 @@
 
 /* ---- Rejilla ---- */
 .rejilla { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-4); }
-.aFocus { grid-area: focus; } .aPulso { grid-area: pulso; } .aProximas { grid-area: prox; } .aHoy { grid-area: hoy; }
+.aFocus { grid-area: focus; } .aPulso { grid-area: pulso; } .aProximas { grid-area: prox; } .aHoy { grid-area: hoy; } .aAgenda { grid-area: agen; }
 .aMapa { grid-area: mapa; } .aResumen { grid-area: resu; } .aFuentes { grid-area: fuen; } .aAccesos { grid-area: acce; }
 .rejilla > * { min-width: 0; align-self: start; }
 .rejilla {
-  grid-template-areas: 'focus' 'pulso' 'prox' 'hoy' 'mapa' 'resu' 'fuen' 'acce';
+  grid-template-areas: 'focus' 'pulso' 'prox' 'agen' 'hoy' 'mapa' 'resu' 'fuen' 'acce';
 }
 @media (min-width: 768px) and (max-width: 1099px) {
   .rejilla {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas: 'focus focus' 'pulso pulso' 'prox prox' 'hoy resu' 'mapa mapa' 'fuen fuen' 'acce acce';
+    grid-template-areas: 'focus focus' 'pulso pulso' 'prox prox' 'hoy agen' 'resu resu' 'mapa mapa' 'fuen fuen' 'acce acce';
   }
 }
 @media (min-width: 1100px) {
@@ -54,7 +54,8 @@
     grid-template-areas:
       'focus focus focus focus focus focus focus pulso pulso pulso pulso pulso'
       'mapa mapa mapa mapa mapa mapa mapa mapa prox prox prox prox'
-      'hoy hoy hoy hoy hoy hoy resu resu resu resu resu resu'
+      'hoy hoy hoy hoy hoy hoy hoy agen agen agen agen agen'
+      'resu resu resu resu resu resu resu resu resu resu resu resu'
       'fuen fuen fuen fuen fuen fuen fuen fuen fuen fuen fuen fuen'
       'acce acce acce acce acce acce acce acce acce acce acce acce';
   }
@@ -130,6 +131,13 @@
 .vencido { color: var(--ds-danger); font-weight: 600; }
 .plegable { margin-top: var(--ds-space-4); border-top: 1px solid var(--ds-border); padding-top: var(--ds-space-3); }
 .plegable summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+/* Agenda de hoy: filas grandes y legibles (hora a la izquierda, título y frente a la derecha). */
+.agenda { display: grid; margin: 0; padding: 0; list-style: none; }
+.agenda li { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: baseline; gap: var(--ds-space-1) var(--ds-space-3); padding: var(--ds-space-3) 0; border-top: 1px solid var(--ds-border); border-bottom: 0; font-size: var(--ds-text-md); }
+.agenda li:first-child { border-top: 0; padding-top: var(--ds-space-1); }
+.agendaHora { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ds-text); white-space: nowrap; }
+.agendaTitulo { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-space-1) var(--ds-space-2); min-width: 0; overflow-wrap: anywhere; }
+.agendaDetalle { grid-column: 2; margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
 .actividad { display: grid; gap: var(--ds-space-2); margin: 0; padding: 0; list-style: none; font-size: var(--ds-text-sm); }
 .actividadTipo { font-weight: 600; }
 

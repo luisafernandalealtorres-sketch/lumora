@@ -7,14 +7,11 @@ import { createClient } from '@/lib/supabase/client';
 import { alternarPendiente, crearPendiente, validarPendiente } from '@/lib/data/acciones';
 import { frenteDeSlug } from '@/lib/domain/frentesMap';
 import { frenteInicial } from '@/lib/domain/formularios';
-import { esTodoElDia } from '@/lib/domain/agenda';
 import Pendientes from '@/components/Pendientes';
 import timer from '@/components/timer/Timer.module.css';
 import BloqueEstado from './BloqueEstado';
 import { ActividadReciente } from './Bloques';
 import estilos from './Home.module.css';
-
-const hora = iso => new Date(iso).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Bogota' });
 
 // Alta rápida dentro de Hoy cuando todavía no hay pendientes: en vez de una superficie vacía, el bloque es útil desde el primer momento.
 function AltaRapida({ frentes }) {
@@ -45,8 +42,8 @@ function AltaRapida({ frentes }) {
 }
 
 // E. Hoy: prioridades (vencidos, vencen hoy y los abiertos más antiguos), «Todos los pendientes» (componente heredado intacto),
-// agenda y correos SOLO si su fuente está conectada, y la actividad reciente. Sin registros, el bloque es compacto y útil.
-export default function HoyPrioridades({ prioridades, resumen, errorPendientes, frentes, pendientesInicial, metas, agenda, agendaInfo, correos, actividad, ahoraMs }) {
+// correos SOLO si su fuente está conectada, y la actividad reciente (la agenda tiene su propia tarjeta: AgendaHoy). Sin registros, el bloque es compacto y útil.
+export default function HoyPrioridades({ prioridades, resumen, errorPendientes, frentes, pendientesInicial, metas, correos, actividad, ahoraMs }) {
   const router = useRouter();
   const [hechos, setHechos] = useState({});          // optimista: id → hecho
   const [error, setError] = useState(null);
@@ -94,27 +91,6 @@ export default function HoyPrioridades({ prioridades, resumen, errorPendientes, 
       {prioridades.ocultos > 0 && <p className={estilos.nota}>{prioridades.ocultos} más en «Todos los pendientes».</p>}
       {!sinPendientes && <button type="button" className={estilos.enlaceBoton} onClick={() => window.dispatchEvent(new CustomEvent('home:accion', { detail: 'pendiente' }))}>+ Nuevo pendiente</button>}
 
-      {(agenda.length > 0 || ['sin_registros', 'desactualizada'].includes(agendaInfo?.estado)) && (
-        <>
-          <h3 className={estilos.subtitulo}>Agenda de hoy</h3>
-          {agenda.length > 0 ? (
-            <ul className={estilos.actividad}>
-              {agenda.map(e => (
-                <li key={e.id}>
-                  <b>{esTodoElDia(e) ? 'Todo el día' : hora(e.inicio)}</b> {e.titulo}{' '}
-                  {e.frente_id ? <Chip frente={e.frente_id} tamano="sm" /> : <Chip tono="neutro" tamano="sm">Sin asignar</Chip>}
-                  {e.detalle && <div className={estilos.nota}>{e.detalle}</div>}
-                </li>
-              ))}
-            </ul>
-          ) : agendaInfo.estado === 'sin_registros' ? (
-            <p className={estilos.nota}>Día libre: sin eventos en los calendarios sincronizados{agendaInfo.pendientes.length ? ` (falta conectar ${agendaInfo.pendientes.join(', ')})` : ''}.</p>
-          ) : (
-            <p className={estilos.nota} role="note">Agenda desactualizada: la última sincronización es vieja, así que no sabemos si hoy tienes eventos.</p>
-          )}
-          {agendaInfo?.estado === 'datos' && agendaInfo.vencida && <p className={estilos.nota} role="note">Esta agenda puede estar desactualizada.</p>}
-        </>
-      )}
       {correos.length > 0 && (
         <>
           <h3 className={estilos.subtitulo}>Correos para revisar</h3>

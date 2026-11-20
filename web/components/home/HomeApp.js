@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { esNegocio } from '@/lib/format';
 import { FUENTES_HOME, estadoFuente } from '@/lib/domain/fuentes';
 import { estadoAgenda, haceCuanto, eventosDeHoy } from '@/lib/domain/agenda';
+import { sumarDias } from '@/lib/domain/fechas';
 import { resumenPendientes, prioridadesHoy, avanceMetas, resumenGastos, resumenJornada, resumenHabitosSalud, recurrentesProximos } from '@/lib/domain/resumen';
 import { mapaFrentes } from '@/lib/domain/mapaFrentes';
 import { generarAlertas } from '@/lib/domain/alertas';
@@ -11,6 +12,7 @@ import { useFase3Home } from './useFase3Home';
 import { BloqueFocus, BloqueLifePulse } from './HomeCentro';
 import { Encabezado, ProximasAcciones, MapaFrentes, ResumenEjecutivo, FranjaFuentes, NotaFase3 } from './Bloques';
 import HoyPrioridades from './HoyPrioridades';
+import AgendaHoy from './AgendaHoy';
 import AccesosRapidos from './AccesosRapidos';
 import estilos from './Home.module.css';
 
@@ -54,7 +56,10 @@ export default function HomeApp({ datos, errores, frentes }) {
   const conError = (fuente, filas, nombre) => estadoFuente({ fuente, filas, error: err(nombre) ? true : null });
   const estResumen = conError(FUENTES_HOME.resumen, datos.resumen, 'resumen');
   // Agenda: estado honesto según la última sincronización de los calendarios (ver lib/domain/agenda.js).
-  const infoAgenda = estadoAgenda({ filas: datos.agenda, fuentes: datos.agendaFuentes, error: err('agenda') ? true : null, ahoraMs });
+  const manana = sumarDias(hoy, 1);
+  const agendaHoy = (datos.agenda ?? []).filter(e => e.fecha === hoy);
+  const agendaManana = eventosDeHoy((datos.agenda ?? []).filter(e => e.fecha === manana));
+  const infoAgenda = estadoAgenda({ filas: err('agenda') ? null : agendaHoy, fuentes: datos.agendaFuentes, error: err('agenda') ? true : null, ahoraMs });
   const notaAgenda = [
     infoAgenda.ultima && infoAgenda.estado !== 'error' ? `sincronizada ${haceCuanto(infoAgenda.ultima, ahoraMs)}` : null,
     infoAgenda.pendientes.length ? `falta conectar: ${infoAgenda.pendientes.join(', ')}` : null,
@@ -76,11 +81,12 @@ export default function HomeApp({ datos, errores, frentes }) {
         <div className={estilos.aFocus}><BloqueFocus /></div>
         <div className={estilos.aPulso}><BloqueLifePulse f3={f3} /></div>
         <div className={estilos.aProximas}><ProximasAcciones alertas={alertas} /></div>
+        <div className={estilos.aAgenda}><AgendaHoy hoy={eventosDeHoy(agendaHoy)} manana={agendaManana} info={infoAgenda} nota={notaAgenda} /></div>
         <div className={estilos.aHoy}>
           <HoyPrioridades
             prioridades={calc.prioridades} resumen={calc.resumenPend} errorPendientes={err('pendientes')}
             frentes={frentes} pendientesInicial={datos.pendientes ?? []} metas={(datos.metas ?? []).filter(m => m.estado === 'activa')}
-            agenda={infoAgenda.estado === 'datos' ? eventosDeHoy(datos.agenda) : []} agendaInfo={infoAgenda}
+            
             correos={estadoFuente({ fuente: FUENTES_HOME.correos, filas: datos.correos }).estado === 'datos' ? datos.correos : []}
             actividad={calc.actividad} ahoraMs={ahoraMs}
           />
