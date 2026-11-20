@@ -1,0 +1,41 @@
+/* Conexiones de Google: presentación alineada con el resto de pantallas. Solo tokens --ds-*. Sin lógica. */
+.bloque { min-width: 0; background: var(--ds-grad-card); border-color: var(--ds-border); box-shadow: var(--ds-shadow-1), inset 0 1px 0 var(--ds-border); }
+.lista { display: grid; gap: var(--ds-space-3); margin: 0 0 var(--ds-space-4); padding: 0; list-style: none; }
+.cabeza { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--ds-space-2) var(--ds-space-3); }
+.correo { margin: 0; font-size: var(--ds-text-md); font-weight: 700; color: var(--ds-text); overflow-wrap: anywhere; }
+.sub { margin: var(--ds-space-1) 0 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); overflow-wrap: anywhere; }
+.vacio { margin: 0; color: var(--ds-text-2); }
+.nombre { font-weight: 600; color: var(--ds-text); }
+.calendarios { display: grid; gap: var(--ds-space-2); margin: var(--ds-space-3) 0 0; padding: 0; list-style: none; }
+.calendarios li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-space-1) var(--ds-space-2); padding: 0; border: 0; }
+
+.aviso { margin: 0 0 var(--ds-space-4); padding: var(--ds-space-3) var(--ds-space-4); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-md); color: var(--ds-text); font-size: var(--ds-text-sm); }
+.t_exito { background: var(--ds-success-soft); }
+.t_advertencia { background: var(--ds-warning-soft); }
+.t_peligro { background: var(--ds-danger-soft); }
+.t_neutro { background: var(--ds-bg-2); }
+.error { margin: 0 0 var(--ds-space-4); padding: var(--ds-space-3) var(--ds-space-4); background: var(--ds-danger-soft); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-md); color: var(--ds-text); font-size: var(--ds-text-sm); }
+
+.acciones { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); margin-top: var(--ds-space-3); }
+.confirmar { display: grid; gap: var(--ds-space-2); margin-top: var(--ds-space-3); padding: var(--ds-space-3) var(--ds-space-4); background: var(--ds-danger-soft); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-md); }
+.confirmar p { margin: 0; font-size: var(--ds-text-sm); color: var(--ds-text); }
+.confirmar .acciones { margin-top: 0; }
+.boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--ds-space-2);
+  min-height: 44px; padding: 0 var(--ds-space-4); font: inherit; font-weight: 600; text-decoration: none;
+  color: var(--ds-text); background: var(--ds-surface); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md);
+  cursor: pointer; transition: background var(--ds-dur-fast) var(--ds-ease), filter var(--ds-dur-fast) var(--ds-ease);
+}
+.boton:hover { background: var(--ds-bg-2); }
+.boton:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+.primario { background: var(--ds-grad-accent); color: var(--ds-on-primary); border-color: transparent; box-shadow: 0 4px 16px var(--ds-glow); }
+.primario:hover { background: var(--ds-grad-accent); filter: brightness(1.08); }
+.peligro { background: var(--ds-danger); color: var(--ds-on-primary); border-color: transparent; }
+.peligro:hover { background: var(--ds-danger); filter: brightness(1.08); }
+.peligroSuave { color: var(--ds-danger); }
+
+/* Anula el estilo global heredado de <li>: aquí cada elemento maneja su propio espacio. */
+.lista > li { padding: 0; border: 0; }
+
+@media (max-width: 767px) { .bloque { padding: var(--ds-space-4); } }
+@media (prefers-reduced-motion: reduce) { .boton { transition: none; } }

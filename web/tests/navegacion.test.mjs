@@ -46,9 +46,9 @@ test('identificadores únicos, grupos válidos e iconos existentes', () => {
   }
 });
 
-test('los cuatro grupos de producción; Gastos vive dentro de Finanzas como alias', () => {
+test('los cinco grupos de producción; Gastos vive dentro de Finanzas como alias', () => {
   const g = gruposConElementos({ desarrollo: false });
-  assert.deepEqual(g.map(x => x.id), ['inicio', 'mi-vida', 'conocimiento', 'asistente']);
+  assert.deepEqual(g.map(x => x.id), ['inicio', 'mi-vida', 'conocimiento', 'asistente', 'cuenta']);
   assert.deepEqual(g.find(x => x.id === 'mi-vida').elementos.map(e => e.id), ['focus', 'habitos', 'atencion', 'metas', 'finanzas', 'salud', 'jornada']);
   assert.equal(ELEMENTOS.find(e => e.id === 'gastos'), undefined);
   assert.deepEqual(ELEMENTOS.find(e => e.id === 'finanzas').alias, ['/gastos']);
@@ -70,7 +70,7 @@ test('el asistente es una acción, no una ruta', () => {
 test('barra móvil: Home, Panel y Metas; el resto va en Más', () => {
   assert.deepEqual(elementosBarraMovil().map(e => e.id), ['mi-dia', 'panel', 'metas']);
   const mas = elementosMas({ desarrollo: false }).map(e => e.id);
-  assert.deepEqual(mas, ['life-pulse', 'focus', 'habitos', 'atencion', 'finanzas', 'salud', 'jornada', 'biblioteca', 'cerebro', 'asistente']);
+  assert.deepEqual(mas, ['life-pulse', 'focus', 'habitos', 'atencion', 'finanzas', 'salud', 'jornada', 'biblioteca', 'cerebro', 'asistente', 'conexiones']);
 });
 
 test('itemDeRuta: exacta, con consulta, con barra final y desconocida', () => {

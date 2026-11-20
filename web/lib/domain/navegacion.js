@@ -11,6 +11,7 @@ export const GRUPOS = [
   { id: 'mi-vida', nombre: 'Mi vida' },
   { id: 'conocimiento', nombre: 'Conocimiento' },
   { id: 'asistente', nombre: 'Asistente IA' },
+  { id: 'cuenta', nombre: 'Cuenta' },
   { id: 'desarrollo', nombre: 'Desarrollo' },
 ];
 
@@ -28,11 +29,12 @@ export const ELEMENTOS = [
   { id: 'biblioteca', nombre: 'Biblioteca', ruta: '/biblioteca', grupo: 'conocimiento', icono: 'library', claves: ['articulos', 'videos', 'libros', 'lecturas'] },
   { id: 'cerebro', nombre: 'Cerebro', ruta: '/cerebro', grupo: 'conocimiento', icono: 'layers', claves: ['notas', 'ideas', 'apuntes'] },
   { id: 'asistente', nombre: 'Asistente', accion: 'asistente', grupo: 'asistente', icono: 'sparkles', claves: ['ia', 'inteligencia', 'chat', 'ayuda'] },
+  { id: 'conexiones', nombre: 'Conexiones', ruta: '/conexiones', grupo: 'cuenta', icono: 'user', claves: ['google', 'calendar', 'calendario', 'cuentas', 'sincronizacion', 'agenda', 'permisos'] },
   { id: 'laboratorio', nombre: 'Laboratorio', ruta: '/laboratorio', grupo: 'desarrollo', icono: 'sliders', claves: ['componentes', 'diseno', 'galeria'], soloDesarrollo: true },
 ];
 
-/** Las 13 rutas de negocio (sin el laboratorio). */
-export const RUTAS_NEGOCIO = ['/', '/life-pulse', '/panel', '/focus', '/habitos', '/atencion', '/metas', '/finanzas', '/gastos', '/jornada', '/salud', '/biblioteca', '/cerebro'];
+/** Las 14 rutas de negocio (sin el laboratorio). */
+export const RUTAS_NEGOCIO = ['/', '/life-pulse', '/panel', '/focus', '/habitos', '/atencion', '/metas', '/finanzas', '/gastos', '/jornada', '/salud', '/biblioteca', '/cerebro', '/conexiones'];
 
 /** Elementos visibles según el entorno. */
 export function elementosVisibles({ desarrollo = false } = {}) {

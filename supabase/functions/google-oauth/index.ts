@@ -8,7 +8,7 @@ const APP_URL = Deno.env.get('APP_URL') ?? 'https://lumora.synergiapps.co';
 const SCOPE_EVENTOS = 'https://www.googleapis.com/auth/calendar.events.readonly';
 
 function volver(estado: string): Response {
-  return new Response(null, { status: 302, headers: { Location: `${APP_URL}/?google=${estado}` } });
+  return new Response(null, { status: 302, headers: { Location: `${APP_URL}/conexiones?google=${estado}` } });
 }
 
 Deno.serve(async (req: Request) => {
