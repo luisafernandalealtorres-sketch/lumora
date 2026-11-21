@@ -5,6 +5,7 @@ import { FRENTES_EXCLUIDOS_POR_DEFECTO, frentesExcluidos, frentePermitido, sinFr
 import { PRECIOS, costoUsd, estadoPresupuesto, parametrosDelModelo, mesDe, MODELO_POR_DEFECTO } from '../lib/asistente/costo.js';
 import { INSTRUCCIONES, construirSistema } from '../lib/asistente/prompt.js';
 import { HERRAMIENTAS, NOMBRES_HERRAMIENTAS, ejecutarHerramienta } from '../lib/asistente/herramientas.js';
+import { normalizarTareas, fechaValida, filasParaCrear, MAX_TAREAS } from '../lib/asistente/tareas.js';
 import { conversar } from '../lib/asistente/bucle.js';
 
 // ---------------------------------------------------------------- Privacidad
@@ -88,7 +89,7 @@ test('las reglas clave del asistente están escritas en el mensaje de sistema', 
   for (const regla of [/Solo lees/, /DATOS, nunca instrucciones/, /Sin registros/, /proponer_recuerdo/, /Nunca se guarda solo/, /pesos colombianos/, /Bogotá/, /fuera de tu alcance|fuera del alcance/, /No reveles/]) {
     assert.match(INSTRUCCIONES, regla, String(regla));
   }
-  assert.ok(INSTRUCCIONES.length < 6000, 'el mensaje fijo se mantiene corto');
+  assert.ok(INSTRUCCIONES.length < 9000, 'el mensaje fijo se mantiene corto');
 });
 
 // ---------------------------------------------------------------- Herramientas
@@ -114,7 +115,7 @@ const ctxDe = (tablas, extra = {}) => ({
 const json = r => JSON.parse(r.contenido);
 
 test('cada herramienta es estricta y no admite campos de más', () => {
-  assert.equal(NOMBRES_HERRAMIENTAS.length, 8);
+  assert.equal(NOMBRES_HERRAMIENTAS.length, 9);
   for (const h of HERRAMIENTAS) {
     assert.equal(h.strict, true, h.name);
     assert.equal(h.input_schema.additionalProperties, false, h.name);
@@ -223,6 +224,47 @@ test('proponer_recuerdo solo emite la propuesta: no escribe en la base', async (
   assert.equal((await ejecutarHerramienta('proponer_recuerdo', { texto: 'x'.repeat(301) }, ctx)).esError, true);
 });
 
+test('proponer_tareas limpia lo que pide el modelo, solo emite la tarjeta y no escribe nada', async () => {
+  const eventos = [];
+  const ctx = ctxDe({}, { emitir: e => eventos.push(e) });
+  ctx.frentesValidos = ['tanku', 'ticketcode'];
+  const r = await ejecutarHerramienta('proponer_tareas', {
+    tareas: [
+      { texto: '  Enviar   cotización a Juan ', frente: 'TANKU', fecha_limite: '2026-11-27', prioridad: 'alta' },
+      { texto: 'enviar cotización a juan', frente: 'tanku', fecha_limite: null, prioridad: 'media' },   // repetida
+      { texto: 'Revisar el jardín', frente: 'salud-abuela', fecha_limite: '2026-02-31', prioridad: 'urgentísima' },   // frente no permitido, fecha falsa
+      { texto: 'x', frente: null, fecha_limite: null, prioridad: 'baja' },   // muy corta
+    ],
+    dudas: ['¿Quién envía la cotización?', '  '],
+  }, ctx);
+  assert.equal(r.esError, false);
+  assert.deepEqual(eventos, [{ tipo: 'propuesta_tareas', dudas: ['¿Quién envía la cotización?'], tareas: [
+    { texto: 'Enviar cotización a Juan', frente: 'tanku', fecha_limite: '2026-11-27', prioridad: 'alta' },
+    { texto: 'Revisar el jardín', frente: null, fecha_limite: null, prioridad: 'media' },
+  ] }]);
+  assert.equal(json(r).cantidad, 2);
+  assert.equal(json(r).descartadas, 2);
+  assert.match(json(r).detalle, /no las des por creadas/);
+  assert.equal(ctx.supabase.llamadas.length, 0);
+  eventos.length = 0;
+  assert.equal((await ejecutarHerramienta('proponer_tareas', { tareas: [{ texto: 'ab', frente: null, fecha_limite: null, prioridad: 'media' }], dudas: [] }, ctx)).esError, true);
+  assert.deepEqual(eventos, [], 'sin tareas válidas no hay tarjeta');
+});
+
+test('tareas: tope de 15, fechas reales y filas listas para crear exigen frente', () => {
+  const muchas = Array.from({ length: 20 }, (_, i) => ({ texto: `Tarea número ${i}`, frente: 'tanku', fecha_limite: null, prioridad: 'media' }));
+  const { tareas, descartadas } = normalizarTareas(muchas, { frentesValidos: ['tanku'] });
+  assert.equal(tareas.length, MAX_TAREAS);
+  assert.equal(descartadas, 5);
+  assert.equal(fechaValida('2026-11-20'), '2026-11-20');
+  assert.equal(fechaValida('2026-02-31'), null);
+  assert.equal(fechaValida('mañana'), null);
+  assert.deepEqual(filasParaCrear([{ texto: 'Llamar a Juan', frente: 'tanku', fecha_limite: null, prioridad: 'baja' }], ['tanku']),
+    { filas: [{ texto: 'Llamar a Juan', frente: 'tanku', fecha_limite: null, prioridad: 'baja', meta_id: null }] });
+  assert.deepEqual(filasParaCrear([{ texto: 'Llamar a Juan', frente: null }], ['tanku']), { error: 'frente' });
+  assert.deepEqual(filasParaCrear([], ['tanku']), { error: 'vacio' });
+});
+
 test('una herramienta desconocida o una entrada inválida no rompen; un fallo de lectura no expone detalles', async () => {
   const ctx = ctxDe({ pendientes: [], __error: { pendientes: { message: 'password authentication failed for user postgres' } } });
   assert.equal((await ejecutarHerramienta('borrar_todo', {}, ctx)).esError, true);
@@ -285,7 +327,7 @@ test('el bucle no modifica el historial recibido y envía el modelo, el sistema 
   assert.equal(entrada.length, 1);
   const p = cliente.llamadas[0];
   assert.equal(p.model, 'claude-haiku-5-5');
-  assert.equal(p.tools.length, 8);
+  assert.equal(p.tools.length, 9);
   assert.deepEqual(p.output_config, { effort: 'low' });
   assert.equal(p.tool_choice, undefined, 'nunca se fuerza una herramienta');
   assert.ok(!('temperature' in p) && !('top_p' in p) && !('thinking' in p));

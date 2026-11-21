@@ -1,6 +1,7 @@
 // Herramientas de LECTURA del asistente. Cada una consulta la base con la sesión de Luisa (la seguridad por usuario de Supabase
 // aplica igual que en la app), quita los frentes excluidos y devuelve un resumen corto: lo que se devuelve viaja a Anthropic,
 // así que se limita en filas y en texto. Ninguna escribe nada. `proponer_recuerdo` solo PROPONE: no guarda.
+import { normalizarTareas, normalizarDudas, MAX_TAREAS } from './tareas.js';
 import { resumenPendientes, prioridadesHoy, avanceMetas, resumenGastos } from '../domain/resumen.js';
 import { sumarDias } from '../domain/fechas.js';
 import { esTodoElDia, haceCuanto } from '../domain/agenda.js';
@@ -102,6 +103,34 @@ export const HERRAMIENTAS = [
     },
     strict: true,
   },
+  {
+    name: 'proponer_tareas',
+    description: 'Propone a Luisa una lista de pendientes sacados de unas notas de reunión o de un texto que ella pegó. NO crea nada: solo muestra una tarjeta que ella revisa, edita y aprueba. Úsala solo con tareas que estén en el texto; no inventes ninguna.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        tareas: {
+          type: 'array',
+          description: 'De 1 a 15 tareas en forma de acción corta (verbo + qué), por ejemplo «Enviar cotización a Juan».',
+          items: {
+            type: 'object',
+            properties: {
+              texto: { type: 'string', description: 'La tarea, de 3 a 200 caracteres.' },
+              frente: { type: ['string', 'null'], description: 'Slug exacto de la lista de frentes asignables del mensaje de sistema, o null si no está claro.' },
+              fecha_limite: { type: ['string', 'null'], description: 'AAAA-MM-DD solo si el texto da la fecha; si no, null.' },
+              prioridad: { type: 'string', enum: ['alta', 'media', 'baja'] },
+            },
+            required: ['texto', 'frente', 'fecha_limite', 'prioridad'],
+            additionalProperties: false,
+          },
+        },
+        dudas: { type: 'array', items: { type: 'string' }, description: 'Cosas poco claras en las notas (responsable, fecha, frente), máximo 5 frases cortas. Puede ir vacío.' },
+      },
+      required: ['tareas', 'dudas'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
 ];
 
 export const NOMBRES_HERRAMIENTAS = HERRAMIENTAS.map(h => h.name);
@@ -130,6 +159,7 @@ export async function ejecutarHerramienta(nombre, entrada, ctx) {
       case 'buscar_notas': return ok(await buscarNotas(e, ctx));
       case 'consultar_jornada': return ok(await consultarJornada(e, ctx));
       case 'proponer_recuerdo': return proponerRecuerdo(e, ctx);
+      case 'proponer_tareas': return proponerTareas(e, ctx);
       default: return { contenido: salida({ error: 'herramienta_desconocida' }), esError: true };
     }
   } catch {
@@ -268,4 +298,13 @@ function proponerRecuerdo(e, ctx) {
   if (texto.length < 5 || texto.length > 300) return { contenido: salida({ error: 'texto_invalido', detalle: 'Debe tener entre 5 y 300 caracteres.' }), esError: true };
   ctx.emitir?.({ tipo: 'propuesta_memoria', texto });
   return { contenido: salida({ estado: 'propuesta_mostrada', detalle: 'Se le mostró a Luisa. Solo se guarda si lo aprueba; no lo des por guardado.' }), esError: false };
+}
+
+// ---------------------------------------------------------------- Tareas de unas notas (solo propone)
+function proponerTareas(e, ctx) {
+  const { tareas, descartadas } = normalizarTareas(e.tareas, { frentesValidos: ctx.frentesValidos ?? [] });
+  const dudas = normalizarDudas(e.dudas);
+  if (tareas.length === 0) return { contenido: salida({ error: 'sin_tareas', detalle: 'No llegó ninguna tarea válida (de 3 a 200 caracteres cada una).' }), esError: true };
+  ctx.emitir?.({ tipo: 'propuesta_tareas', tareas, dudas });
+  return { contenido: salida({ estado: 'propuesta_mostrada', cantidad: tareas.length, descartadas, maximo: MAX_TAREAS, detalle: 'Se le mostró a Luisa una tarjeta para revisarlas. Solo se crean si ella las aprueba; no las des por creadas.' }), esError: false };
 }

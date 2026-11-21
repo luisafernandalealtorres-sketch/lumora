@@ -245,3 +245,12 @@
 .lista { margin: 0; padding-left: var(--ds-space-5); list-style: disc; }
 .ol { list-style: decimal; }
 .lista li { display: list-item; list-style: inherit; margin: 0; padding: 0; border: 0; }
+
+.tareas { list-style: none; margin: var(--ds-space-2) 0 var(--ds-space-3); padding: 0; display: flex; flex-direction: column; gap: var(--ds-space-3); }
+.tarea { display: flex; flex-direction: column; gap: var(--ds-space-2); margin: 0; padding: var(--ds-space-3); background: var(--ds-surface); border: 1px solid var(--ds-border); border-radius: var(--ds-radius-md); }
+.marca2 { display: flex; align-items: center; gap: var(--ds-space-2); min-height: 44px; font-size: var(--ds-text-sm); color: var(--ds-text-2); }
+.marca2 input { width: 20px; height: 20px; accent-color: var(--ds-primary); }
+.fila { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); }
+.campoMini { min-height: 44px; flex: 1 1 110px; min-width: 0; padding: 0 var(--ds-space-3); background: var(--ds-bg-2); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md); color: var(--ds-text); font: inherit; font-family: var(--ds-font-body); font-size: var(--ds-text-sm); }
+.tarea > .campoMini { width: 100%; flex: none; }
+.campoMini:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }

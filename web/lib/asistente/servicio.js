@@ -4,11 +4,11 @@
 import { conversar } from './bucle.js';
 import { HERRAMIENTAS, ejecutarHerramienta } from './herramientas.js';
 import { construirSistema } from './prompt.js';
-import { frentesExcluidos } from './privacidad.js';
+import { frentesExcluidos, frentePermitido } from './privacidad.js';
 import { costoUsd, estadoPresupuesto, parametrosDelModelo, MODELO_POR_DEFECTO } from './costo.js';
 
 export const LIMITE_HISTORIAL = 20;      // mensajes que se envían como contexto de la conversación
-export const MAX_CARACTERES = 4000;      // por mensaje
+export const MAX_CARACTERES = 12000;     // por mensaje (caben unas notas de reunión de unas 3 páginas)
 
 /** Valida el historial que manda el navegador: solo texto, roles user/assistant, el último del usuario. */
 export function validarMensajes(entrada) {
@@ -63,8 +63,11 @@ export async function atender({ supabase, cliente, entorno = {}, mensajes, conte
     supabase.from('frentes').select('slug,nombre'),
   ]);
   const nombres = new Map((fr.data ?? []).map(f => [f.slug, f.nombre]));
+  const excluidos = frentesExcluidos(entorno.frentesExcluidos);
+  const asignables = (fr.data ?? []).filter(f => frentePermitido(f.slug, excluidos));
   const ctx = {
     supabase, hoy: hoyBogota(ahora), ahoraMs: ahora, excluidos: frentesExcluidos(entorno.frentesExcluidos),
+    frentesValidos: asignables.map(f => f.slug),
     nombreFrente: slug => (slug ? nombres.get(slug) ?? slug : 'Sin frente'), emitir,
   };
 
@@ -73,7 +76,7 @@ export async function atender({ supabase, cliente, entorno = {}, mensajes, conte
   try {
     const r = await conversar({
       client: cliente, modelo, mensajes, herramientas: HERRAMIENTAS, emitir,
-      sistema: construirSistema({ memoria: mem.data ?? [], contexto, ahora, excluidos: ctx.excluidos.map(ctx.nombreFrente) }),
+      sistema: construirSistema({ memoria: mem.data ?? [], contexto, ahora, excluidos: ctx.excluidos.map(ctx.nombreFrente), frentesAsignables: asignables }),
       parametros: parametrosDelModelo(modelo, entorno.esfuerzo),
       ejecutar: (nombre, entrada) => ejecutarHerramienta(nombre, entrada, ctx),
     });

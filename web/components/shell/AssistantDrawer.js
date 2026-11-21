@@ -1,9 +1,10 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
 import Chip from '@/components/ui/Chip';
 import { createClient } from '@/lib/supabase/client';
+import { filasParaCrear, PRIORIDADES, MAX_TEXTO_TAREA } from '@/lib/asistente/tareas';
 import { migas } from '@/lib/domain/navegacion';
 import { nombreFrenteActivo } from '@/lib/domain/frenteActivo';
 import {
@@ -20,6 +21,7 @@ import estilos from './AssistantDrawer.module.css';
 export default function AssistantDrawer() {
   const { asistenteAbierto, cerrar } = useShell();
   const ruta = usePathname();
+  const router = useRouter();
   const { frente } = useFrenteActivo();
   const panel = useRef(null);
   const fin = useRef(null);
@@ -35,6 +37,10 @@ export default function AssistantDrawer() {
   const [memoria, setMemoria] = useState(null);          // null = sin cargar / no disponible
   const [verMemoria, setVerMemoria] = useState(false);
   const [errorMemoria, setErrorMemoria] = useState('');
+  const [tarjetas, setTarjetas] = useState([]);          // tareas propuestas desde unas notas, pendientes de tu decisión
+  const [frentes, setFrentes] = useState([]);            // { slug, nombre } para asignar
+  const [errorTareas, setErrorTareas] = useState('');
+  const [creadas, setCreadas] = useState('');
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -62,7 +68,7 @@ export default function AssistantDrawer() {
   useEffect(() => {
     if (asistenteAbierto) return;
     abortar.current?.abort();
-    setMensajes([]); setTexto(''); setEstado('disponible'); setConsulta(''); setError(''); setAviso(''); setPropuestas([]); setVerMemoria(false);
+    setMensajes([]); setTexto(''); setEstado('disponible'); setConsulta(''); setError(''); setAviso(''); setPropuestas([]); setVerMemoria(false); setTarjetas([]); setErrorTareas(''); setCreadas('');
   }, [asistenteAbierto]);
 
   const cargarMemoria = useCallback(async () => {
@@ -70,6 +76,10 @@ export default function AssistantDrawer() {
     setMemoria(e ? null : data ?? []);
   }, []);
   useEffect(() => { if (asistenteAbierto) cargarMemoria(); }, [asistenteAbierto, cargarMemoria]);
+  useEffect(() => {
+    if (!asistenteAbierto) return;
+    createClient().from('frentes').select('slug,nombre').then(({ data }) => setFrentes(data ?? []));
+  }, [asistenteAbierto]);
 
   useEffect(() => { fin.current?.scrollIntoView?.({ block: 'end' }); }, [mensajes, propuestas, consulta, error]);
 
@@ -78,7 +88,7 @@ export default function AssistantDrawer() {
     if (!pregunta || !puedeEnviar(estado)) return;
     const historial = [...mensajes, { role: 'user', content: pregunta }];
     setMensajes([...historial, { role: 'assistant', content: '' }]);
-    setTexto(''); setError(''); setAviso(''); setEstado('pensando'); setConsulta('');
+    setTexto(''); setError(''); setAviso(''); setCreadas(''); setEstado('pensando'); setConsulta('');
     const control = new AbortController();
     abortar.current = control;
     let huboTexto = false, terminado = false;
@@ -105,6 +115,7 @@ export default function AssistantDrawer() {
           if (ev.tipo === 'estado') { setEstado(ev.estado === 'consultando' ? 'consultando' : 'pensando'); setConsulta(ev.estado === 'consultando' ? textoConsulta(ev.herramienta) : ''); }
           else if (ev.tipo === 'texto' && typeof ev.delta === 'string') { huboTexto = true; setConsulta(''); setMensajes(m => m.map((x, i) => (i === m.length - 1 ? { ...x, content: x.content + ev.delta } : x))); }
           else if (ev.tipo === 'propuesta_memoria' && typeof ev.texto === 'string') setPropuestas(p => [...p, { id: `${Date.now()}-${p.length}`, texto: ev.texto, estado: 'pendiente' }]);
+          else if (ev.tipo === 'propuesta_tareas' && Array.isArray(ev.tareas)) setTarjetas(t => [...t, { id: `${Date.now()}-${t.length}`, dudas: Array.isArray(ev.dudas) ? ev.dudas : [], items: ev.tareas.map((x, i) => ({ k: i, incluir: true, texto: x.texto, frente: x.frente ?? '', fecha_limite: x.fecha_limite ?? '', prioridad: x.prioridad })) }]);
           else if (ev.tipo === 'rechazo') setError('No puedo ayudar con eso.');
           else if (ev.tipo === 'cortada') setError('La respuesta quedó incompleta. Pídeme que continúe o hazme la pregunta más corta.');
           else if (ev.tipo === 'aviso' && ev.codigo === 'uso_no_registrado') setAviso('No pude registrar el costo de esta respuesta.');
@@ -133,6 +144,25 @@ export default function AssistantDrawer() {
     }
     setPropuestas(ps => ps.filter(x => x.id !== p.id));
     cargarMemoria();
+  }
+
+  function cambiarTarea(idTarjeta, k, cambios) {
+    setTarjetas(ts => ts.map(t => (t.id === idTarjeta ? { ...t, items: t.items.map(x => (x.k === k ? { ...x, ...cambios } : x)) } : t)));
+  }
+
+  async function crearTareas(tarjeta) {
+    setErrorTareas('');
+    const marcadas = tarjeta.items.filter(x => x.incluir).map(x => ({ texto: x.texto, frente: x.frente, fecha_limite: x.fecha_limite || null, prioridad: x.prioridad }));
+    const r = filasParaCrear(marcadas, frentes.map(f => f.slug));
+    if (r.error) {
+      setErrorTareas(r.error === 'frente' ? 'Elige el frente de cada tarea marcada.' : r.error === 'vacio' ? 'No hay tareas marcadas.' : 'Revisa el texto de las tareas (mínimo 3 letras).');
+      return;
+    }
+    const { error: e } = await createClient().from('pendientes').insert(r.filas);
+    if (e) { setErrorTareas('No pude crear los pendientes. No se creó ninguno; intenta de nuevo.'); return; }
+    setTarjetas(ts => ts.filter(t => t.id !== tarjeta.id));
+    setCreadas(r.filas.length === 1 ? 'Creé 1 pendiente.' : `Creé ${r.filas.length} pendientes.`);
+    router.refresh();
   }
 
   async function olvidar(id) {
@@ -210,6 +240,45 @@ export default function AssistantDrawer() {
             </div>
           ))}
 
+          {tarjetas.map(t => (
+            <div key={t.id} className={estilos.propuesta} role="group" aria-label="Tareas propuestas">
+              <p className={estilos.rotulo}>Tareas que encontré: revisa y crea</p>
+              <ul className={estilos.tareas}>
+                {t.items.map(x => (
+                  <li key={x.k} className={estilos.tarea}>
+                    <label className={estilos.marca2}>
+                      <input type="checkbox" checked={x.incluir} onChange={e => cambiarTarea(t.id, x.k, { incluir: e.target.checked })} />
+                      <span>Crear</span>
+                    </label>
+                    <input className={estilos.campoMini} type="text" maxLength={MAX_TEXTO_TAREA} value={x.texto} aria-label="Texto de la tarea" onChange={e => cambiarTarea(t.id, x.k, { texto: e.target.value })} />
+                    <div className={estilos.fila}>
+                      <select className={estilos.campoMini} value={x.frente} aria-label="Frente" onChange={e => cambiarTarea(t.id, x.k, { frente: e.target.value })}>
+                        <option value="">Elige frente…</option>
+                        {frentes.map(f => <option key={f.slug} value={f.slug}>{f.nombre}</option>)}
+                      </select>
+                      <input className={estilos.campoMini} type="date" value={x.fecha_limite} aria-label="Fecha límite" onChange={e => cambiarTarea(t.id, x.k, { fecha_limite: e.target.value })} />
+                      <select className={estilos.campoMini} value={x.prioridad} aria-label="Prioridad" onChange={e => cambiarTarea(t.id, x.k, { prioridad: e.target.value })}>
+                        {PRIORIDADES.map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              {t.dudas.length > 0 && (
+                <div>
+                  <p className={estilos.rotulo}>Dudas</p>
+                  <ul className={estilos.lista}>{t.dudas.map((d, i) => <li key={i}>{d}</li>)}</ul>
+                </div>
+              )}
+              <div className={estilos.acciones}>
+                <button type="button" className={estilos.primario} onClick={() => crearTareas(t)}>Crear marcadas</button>
+                <button type="button" className={estilos.secundario} onClick={() => setTarjetas(ts => ts.filter(x => x.id !== t.id))}>Descartar</button>
+              </div>
+            </div>
+          ))}
+          {errorTareas && <p className={estilos.error} role="alert">{errorTareas}</p>}
+          {creadas && <p className={estilos.aviso} role="status">{creadas}</p>}
+
           {error && <p className={estilos.error} role="alert">{error}</p>}
           {aviso && !error && <p className={estilos.aviso}>{aviso}</p>}
           <div ref={fin} />
@@ -241,7 +310,7 @@ export default function AssistantDrawer() {
             id="asistente-mensaje"
             className={estilos.campo}
             rows={2}
-            maxLength={4000}
+            maxLength={12000}
             value={texto}
             disabled={bloqueado}
             placeholder={bloqueado ? 'Disponible cuando se conecte el asistente' : 'Escribe tu pregunta'}

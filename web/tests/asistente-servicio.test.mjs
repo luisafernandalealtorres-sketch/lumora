@@ -95,7 +95,7 @@ test('la memoria aprobada y el contexto llegan al mensaje de sistema; la petici�
   assert.deepEqual(p.output_config, { effort: 'low' });
   assert.equal(p.tool_choice, undefined);
   assert.equal(p.temperature, undefined);
-  assert.equal(p.tools.length, 8);
+  assert.equal(p.tools.length, 9);
 });
 
 test('una herramienta pedida por el modelo se ejecuta con la sesión del usuario y respeta los frentes excluidos', async () => {
@@ -126,6 +126,15 @@ test('el modelo sabe qué frentes están fuera de su alcance y no dice "no encon
   const libre = clienteDe([{ mensaje: msg('end_turn', [{ type: 'text', text: 'ok' }]) }]);
   await atender({ ...base, supabase: baseSimulada(), cliente: libre, entorno: { ...entorno, frentesExcluidos: '' }, emitir: () => {} });
   assert.ok(!libre.llamadas[0].system.map(b => b.text).join('\n').includes('Fuera de tu alcance'));
+});
+
+test('el modelo recibe los slugs reales de los frentes asignables, sin los excluidos', async () => {
+  const supabase = baseSimulada({ frentes: [{ slug: 'ticketcode-eve', nombre: 'TICKETCODE · EVE' }, { slug: 'tanku', nombre: 'TANKU' }, { slug: 'salud-abuela', nombre: 'Salud de la abuela' }] });
+  const cliente = clienteDe([{ mensaje: msg('end_turn', [{ type: 'text', text: 'ok' }]) }]);
+  await atender({ ...base, supabase, cliente, emitir: () => {} });
+  const sistema = cliente.llamadas[0].system.map(b => b.text).join('\n');
+  assert.match(sistema, /Frentes que puedes asignar a una tarea \(slug: nombre\): ticketcode-eve: TICKETCODE · EVE; tanku: TANKU\./);
+  assert.ok(!/asignar[^\n]*salud-abuela/.test(sistema), 'el frente excluido no se ofrece para asignar');
 });
 
 test('una propuesta de memoria llega al navegador y no se guarda nada', async () => {

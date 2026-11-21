@@ -43,7 +43,8 @@ test('el asistente solo habla con /api/asistente y solo toca su propia memoria',
   const js = sinComentarios(leer('components/shell/AssistantDrawer.js'));
   assert.deepEqual([...js.matchAll(/fetch\('([^']+)'/g)].map(m => m[1]), ['/api/asistente']);
   const tablas = [...js.matchAll(/\.from\('([^']+)'\)/g)].map(m => m[1]);
-  assert.ok(tablas.length > 0 && tablas.every(t => t === 'asistente_memoria'), 'solo asistente_memoria');
+  assert.ok(tablas.length > 0 && tablas.every(t => ['asistente_memoria', 'pendientes', 'frentes'].includes(t)), 'solo su memoria, los frentes (lectura) y crear pendientes aprobados');
+  assert.ok(!/from\('pendientes'\)\.(delete|select)/.test(js), 'sobre pendientes solo inserta');
   assert.ok(!/\.update\(|\.upsert\(|\.rpc\(/.test(js));
 });
 
