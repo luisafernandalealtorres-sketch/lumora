@@ -116,6 +116,18 @@ test('una herramienta pedida por el modelo se ejecuta con la sesión del usuario
   assert.match(sinExcluir.llamadas[1].messages.at(-1).content[0].content, /abuela/, 'si Luisa lo permite, aparece');
 });
 
+test('el modelo sabe qué frentes están fuera de su alcance y no dice "no encontré nada" sobre ellos', async () => {
+  const supabase = baseSimulada({ frentes: [{ slug: 'salud-abuela', nombre: 'Salud abuela' }] });
+  const cliente = clienteDe([{ mensaje: msg('end_turn', [{ type: 'text', text: 'ok' }]) }]);
+  await atender({ ...base, supabase, cliente, emitir: () => {} });
+  const sistema = cliente.llamadas[0].system.map(b => b.text).join('\n');
+  assert.match(sistema, /Fuera de tu alcance por decisión de Luisa: Salud abuela/);
+  assert.match(sistema, /Nunca digas que no encontraste nada/);
+  const libre = clienteDe([{ mensaje: msg('end_turn', [{ type: 'text', text: 'ok' }]) }]);
+  await atender({ ...base, supabase: baseSimulada(), cliente: libre, entorno: { ...entorno, frentesExcluidos: '' }, emitir: () => {} });
+  assert.ok(!libre.llamadas[0].system.map(b => b.text).join('\n').includes('Fuera de tu alcance'));
+});
+
 test('una propuesta de memoria llega al navegador y no se guarda nada', async () => {
   const supabase = baseSimulada();
   const eventos = [];

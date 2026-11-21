@@ -78,12 +78,15 @@ function fechaLegible(ahora) {
  * @param {Array<{texto:string}>} [p.memoria]  Hechos que Luisa aprobó guardar
  * @param {{ruta?:string, frente?:string}} [p.contexto]  Pantalla y frente donde está
  * @param {number|string|Date} p.ahora
+ * @param {string[]} [p.excluidos]  Nombres de los frentes que Luisa dejó fuera del alcance del asistente
  */
-export function construirSistema({ memoria = [], contexto = {}, ahora }) {
+export function construirSistema({ memoria = [], contexto = {}, ahora, excluidos = [] }) {
   const f = fechaLegible(ahora);
   const lineas = [`Hoy es ${f.dia} ${f.iso}, ${f.hora} (Bogotá).`];
   if (contexto?.ruta) lineas.push(`Luisa está en: ${String(contexto.ruta).slice(0, 80)}.`);
   if (contexto?.frente) lineas.push(`Frente activo: ${String(contexto.frente).slice(0, 40)}.`);
+  const fuera = (excluidos ?? []).map(n => String(n ?? '').trim().slice(0, 40)).filter(Boolean);
+  if (fuera.length) lineas.push(`Fuera de tu alcance por decisión de Luisa: ${fuera.join(', ')}. Si pregunta por eso, responde SOLO que ese tema está fuera de tu alcance por decisión suya y que lo consulte directamente en la app. Nunca digas que no encontraste nada sobre esos temas ni que buscaste: no los miraste.`);
   const recuerdos = (memoria ?? []).map(m => String(m?.texto ?? '').trim()).filter(Boolean).slice(0, 50);
   if (recuerdos.length) lineas.push('Lo que Luisa te pidió recordar:', ...recuerdos.map(t => `- ${t.slice(0, 300)}`));
   return [

@@ -73,7 +73,7 @@ export async function atender({ supabase, cliente, entorno = {}, mensajes, conte
   try {
     const r = await conversar({
       client: cliente, modelo, mensajes, herramientas: HERRAMIENTAS, emitir,
-      sistema: construirSistema({ memoria: mem.data ?? [], contexto, ahora }),
+      sistema: construirSistema({ memoria: mem.data ?? [], contexto, ahora, excluidos: ctx.excluidos.map(ctx.nombreFrente) }),
       parametros: parametrosDelModelo(modelo, entorno.esfuerzo),
       ejecutar: (nombre, entrada) => ejecutarHerramienta(nombre, entrada, ctx),
     });
