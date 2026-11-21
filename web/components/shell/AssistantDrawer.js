@@ -1,26 +1,40 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Icon from '@/components/ui/Icon';
 import Chip from '@/components/ui/Chip';
+import { createClient } from '@/lib/supabase/client';
 import { migas } from '@/lib/domain/navegacion';
 import { nombreFrenteActivo } from '@/lib/domain/frenteActivo';
-import { estadoAsistente, puedeEnviar, ESTADO_INICIAL, FUTURO_ASISTENTE } from '@/lib/domain/asistente';
+import {
+  estadoAsistente, puedeEnviar, FUTURO_ASISTENTE, leerEventos, mensajeDeError, estadoDeError, textoConsulta, textoPresupuesto, bloquesDeTexto,
+} from '@/lib/domain/asistente';
 import { useShell } from './ShellProvider';
 import { useDialogo } from './useDialogo';
 import { useFrenteActivo } from './useFrenteActivo';
 import estilos from './AssistantDrawer.module.css';
 
-// Panel del asistente. La IA NO está conectada: no hay chat, respuestas ni acciones simuladas.
-// Muestra el estado real ("No conectado"), el contexto actual (pantalla y frente) y lo que vendrá, marcado como pendiente.
+// Asistente: chat de SOLO LECTURA. Consulta tus datos a través del servidor (la clave de la IA nunca llega aquí),
+// no cambia nada y solo guarda un recuerdo cuando tú lo apruebas. La conversación no se guarda: al cerrar el panel empieza limpia.
 // Escritorio: panel lateral que no bloquea la pantalla. Móvil: hoja modal.
 export default function AssistantDrawer() {
   const { asistenteAbierto, cerrar } = useShell();
   const ruta = usePathname();
   const { frente } = useFrenteActivo();
   const panel = useRef(null);
+  const fin = useRef(null);
+  const abortar = useRef(null);
   const [modal, setModal] = useState(false);
-  const estado = estadoAsistente(ESTADO_INICIAL);
+  const [mensajes, setMensajes] = useState([]);          // { role, content }
+  const [texto, setTexto] = useState('');
+  const [estado, setEstado] = useState('disponible');
+  const [consulta, setConsulta] = useState('');
+  const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
+  const [propuestas, setPropuestas] = useState([]);      // recuerdos propuestos, pendientes de tu decisión
+  const [memoria, setMemoria] = useState(null);          // null = sin cargar / no disponible
+  const [verMemoria, setVerMemoria] = useState(false);
+  const [errorMemoria, setErrorMemoria] = useState('');
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -30,11 +44,10 @@ export default function AssistantDrawer() {
     return () => mq.removeEventListener('change', act);
   }, []);
 
-  // Móvil: diálogo modal con trampa de foco. Escritorio: no modal; Escape lo cierra y devuelve el foco al botón flotante.
   useDialogo(panel, asistenteAbierto && modal, cerrar);
   useEffect(() => {
     if (!asistenteAbierto || modal) return undefined;
-    panel.current?.querySelector('button')?.focus();
+    panel.current?.querySelector('textarea')?.focus();
     function tecla(e) {
       if (e.key === 'Escape' && panel.current?.contains(document.activeElement)) {
         cerrar();
@@ -45,10 +58,97 @@ export default function AssistantDrawer() {
     return () => document.removeEventListener('keydown', tecla);
   }, [asistenteAbierto, modal, cerrar]);
 
+  // Al cerrar el panel se corta la respuesta en curso y la conversación se descarta.
+  useEffect(() => {
+    if (asistenteAbierto) return;
+    abortar.current?.abort();
+    setMensajes([]); setTexto(''); setEstado('disponible'); setConsulta(''); setError(''); setAviso(''); setPropuestas([]); setVerMemoria(false);
+  }, [asistenteAbierto]);
+
+  const cargarMemoria = useCallback(async () => {
+    const { data, error: e } = await createClient().from('asistente_memoria').select('id,texto').order('creado_en', { ascending: true });
+    setMemoria(e ? null : data ?? []);
+  }, []);
+  useEffect(() => { if (asistenteAbierto) cargarMemoria(); }, [asistenteAbierto, cargarMemoria]);
+
+  useEffect(() => { fin.current?.scrollIntoView?.({ block: 'end' }); }, [mensajes, propuestas, consulta, error]);
+
+  const enviar = useCallback(async () => {
+    const pregunta = texto.trim();
+    if (!pregunta || !puedeEnviar(estado)) return;
+    const historial = [...mensajes, { role: 'user', content: pregunta }];
+    setMensajes([...historial, { role: 'assistant', content: '' }]);
+    setTexto(''); setError(''); setAviso(''); setEstado('pensando'); setConsulta('');
+    const control = new AbortController();
+    abortar.current = control;
+    let huboTexto = false, terminado = false;
+    try {
+      const respuesta = await fetch('/api/asistente', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: control.signal,
+        body: JSON.stringify({ mensajes: historial, contexto: { ruta: pathnameLegible(ruta), frente: frente || '' } }),
+      });
+      if (!respuesta.ok || !respuesta.body) {
+        const cuerpo = await respuesta.json().catch(() => ({}));
+        throw Object.assign(new Error('http'), { codigo: cuerpo?.error ?? 'interno' });
+      }
+      const lector = respuesta.body.getReader();
+      const decodificador = new TextDecoder();
+      let pendiente = '';
+      for (;;) {
+        const { done, value } = await lector.read();
+        if (done) break;
+        const { eventos, resto } = leerEventos(pendiente + decodificador.decode(value, { stream: true }));
+        pendiente = resto;
+        for (const ev of eventos) {
+          if (ev.tipo === 'estado') { setEstado(ev.estado === 'consultando' ? 'consultando' : 'pensando'); setConsulta(ev.estado === 'consultando' ? textoConsulta(ev.herramienta) : ''); }
+          else if (ev.tipo === 'texto' && typeof ev.delta === 'string') { huboTexto = true; setConsulta(''); setMensajes(m => m.map((x, i) => (i === m.length - 1 ? { ...x, content: x.content + ev.delta } : x))); }
+          else if (ev.tipo === 'propuesta_memoria' && typeof ev.texto === 'string') setPropuestas(p => [...p, { id: `${Date.now()}-${p.length}`, texto: ev.texto, estado: 'pendiente' }]);
+          else if (ev.tipo === 'rechazo') setError('No puedo ayudar con eso.');
+          else if (ev.tipo === 'cortada') setError('La respuesta quedó incompleta. Pídeme que continúe o hazme la pregunta más corta.');
+          else if (ev.tipo === 'aviso' && ev.codigo === 'uso_no_registrado') setAviso('No pude registrar el costo de esta respuesta.');
+          else if (ev.tipo === 'fin') { terminado = true; setAviso(a => a || textoPresupuesto(ev.presupuesto)); setEstado('disponible'); }
+          else if (ev.tipo === 'error') { terminado = true; setError(mensajeDeError(ev.codigo)); setEstado(estadoDeError(ev.codigo)); }
+        }
+      }
+      if (!terminado) { setError('Se cortó la conexión. Intenta de nuevo.'); setEstado('error'); }
+    } catch (e) {
+      if (e?.name === 'AbortError') return;
+      setError(mensajeDeError(e?.codigo ?? 'conexion'));
+      setEstado(estadoDeError(e?.codigo));
+    } finally {
+      setConsulta('');
+      // Una respuesta vacía no se deja en el historial.
+      if (!huboTexto) setMensajes(m => (m.at(-1)?.role === 'assistant' && !m.at(-1).content ? m.slice(0, -1) : m));
+    }
+  }, [texto, estado, mensajes, ruta, frente]);
+
+  async function guardarRecuerdo(p) {
+    setErrorMemoria('');
+    const { error: e } = await createClient().from('asistente_memoria').insert({ texto: p.texto });
+    if (e) {
+      setErrorMemoria(/memoria_llena/.test(e.message ?? '') ? 'Ya tienes 50 recuerdos. Olvida alguno para guardar otro.' : 'No pude guardar el recuerdo.');
+      return;
+    }
+    setPropuestas(ps => ps.filter(x => x.id !== p.id));
+    cargarMemoria();
+  }
+
+  async function olvidar(id) {
+    setErrorMemoria('');
+    const { error: e } = await createClient().from('asistente_memoria').delete().eq('id', id);
+    if (e) { setErrorMemoria('No pude borrar el recuerdo.'); return; }
+    cargarMemoria();
+  }
+
   if (!asistenteAbierto) return null;
 
   const lugar = migas(ruta, { desarrollo: process.env.NODE_ENV !== 'production' }).map(m => m.nombre).join(' › ') || 'Cerebro de Lu';
   const nombreFrente = nombreFrenteActivo(frente) ?? 'Todos los frentes';
+  const info = estadoAsistente(estado);
+  const ocupado = estado === 'pensando' || estado === 'consultando';
+  const bloqueado = estado === 'no-conectado';
 
   return (
     <div className={`${estilos.contenedor} ${modal ? estilos.modal : ''}`} onMouseDown={e => { if (modal && e.target === e.currentTarget) cerrar(); }}>
@@ -63,45 +163,108 @@ export default function AssistantDrawer() {
         <div className={estilos.cabecera}>
           <span className={estilos.marca} aria-hidden="true"><Icon name="sparkles" size={18} /></span>
           <div className={estilos.titulos}>
-            <h2 id="asistente-titulo" className={estilos.titulo}>Asistente</h2>
-            <p className={estilos.sub}>Segundo cerebro</p>
+            <h2 id="asistente-titulo" className={estilos.titulo}>Lu</h2>
+            <p className={estilos.sub}>{lugar} · {nombreFrente}</p>
           </div>
-          <Chip tono="neutro" tamano="sm">{estado.etiqueta}</Chip>
+          <Chip tono="neutro" tamano="sm">{info.etiqueta}</Chip>
           <button type="button" className={estilos.cerrar} onClick={cerrar} aria-label="Cerrar el asistente">
             <Icon name="x" size={18} />
           </button>
         </div>
 
         <div className={estilos.cuerpo}>
-          <div className={estilos.contexto}>
-            <p className={estilos.rotulo}>Contexto actual</p>
-            <p className={estilos.dato}>{lugar}</p>
-            <p className={estilos.dato}>{nombreFrente}</p>
+          {mensajes.length === 0 && (
+            <div className={estilos.vacio}>
+              <p className={estilos.texto}>
+                {bloqueado ? `${info.descripcion} Cuando esté conectado podrás preguntarme por tu día, pendientes, agenda, gastos, metas y notas.` : '¡Hola! Soy Lu, de Lumora. Pregúntame por tu día, pendientes, agenda, gastos, metas o notas. Solo leo: no cambio nada.'}
+              </p>
+              <p className={estilos.rotulo}>Todavía no hago</p>
+              <ul className={estilos.futuro}>
+                {FUTURO_ASISTENTE.map(t => (
+                  <li key={t} className={estilos.punto}>
+                    <span>{t}</span>
+                    <Chip tono="neutro" tamano="sm">Pendiente</Chip>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className={estilos.mensajes} aria-live="polite">
+            {mensajes.map((m, i) => (
+              <div key={i} className={m.role === 'user' ? estilos.mio : estilos.suyo}>
+                {m.role === 'user' ? m.content : m.content ? <TextoFormateado texto={m.content} /> : (i === mensajes.length - 1 && ocupado ? <span className={estilos.pensando}>{consulta || 'Pensando…'}</span> : null)}
+              </div>
+            ))}
+            {consulta && mensajes.at(-1)?.content ? <p className={estilos.estado}>{consulta}</p> : null}
           </div>
 
-          <p className={estilos.texto}>
-            El asistente todavía no está conectado. {estado.descripcion} Hasta entonces no responde mensajes ni ejecuta acciones.
-          </p>
+          {propuestas.map(p => (
+            <div key={p.id} className={estilos.propuesta} role="group" aria-label="Recuerdo propuesto">
+              <p className={estilos.rotulo}>¿Guardo este recuerdo?</p>
+              <p className={estilos.dato}>{p.texto}</p>
+              <div className={estilos.acciones}>
+                <button type="button" className={estilos.primario} onClick={() => guardarRecuerdo(p)}>Guardar</button>
+                <button type="button" className={estilos.secundario} onClick={() => setPropuestas(ps => ps.filter(x => x.id !== p.id))}>Descartar</button>
+              </div>
+            </div>
+          ))}
 
-          <div>
-            <p className={estilos.rotulo}>Cuando se conecte</p>
-            <ul className={estilos.futuro}>
-              {FUTURO_ASISTENTE.map(t => (
-                <li key={t} className={estilos.punto}>
-                  <span>{t}</span>
-                  <Chip tono="neutro" tamano="sm">Pendiente</Chip>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className={estilos.compositor}>
-            <label className={estilos.rotulo} htmlFor="asistente-mensaje">Mensaje</label>
-            <textarea id="asistente-mensaje" className={estilos.campo} rows={3} disabled placeholder="Disponible cuando se conecte el asistente" />
-            <button type="button" className={estilos.enviar} disabled={!puedeEnviar(ESTADO_INICIAL)}>Enviar</button>
-          </div>
+          {error && <p className={estilos.error} role="alert">{error}</p>}
+          {aviso && !error && <p className={estilos.aviso}>{aviso}</p>}
+          <div ref={fin} />
         </div>
+
+        {memoria !== null && (
+          <div className={estilos.memoria}>
+            <button type="button" className={estilos.memoriaBoton} aria-expanded={verMemoria} onClick={() => setVerMemoria(v => !v)}>
+              Lo que recuerdo ({memoria.length})
+            </button>
+            {verMemoria && (
+              <ul className={estilos.memoriaLista}>
+                {memoria.length === 0 && <li className={estilos.vacioMemoria}>Aún no he guardado nada. Solo guardo lo que tú apruebas.</li>}
+                {memoria.map(r => (
+                  <li key={r.id} className={estilos.recuerdo}>
+                    <span>{r.texto}</span>
+                    <button type="button" className={estilos.secundario} onClick={() => olvidar(r.id)} aria-label={`Olvidar: ${r.texto}`}>Olvidar</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {errorMemoria && <p className={estilos.error} role="alert">{errorMemoria}</p>}
+          </div>
+        )}
+
+        <form className={estilos.compositor} onSubmit={e => { e.preventDefault(); enviar(); }}>
+          <label className={estilos.rotulo} htmlFor="asistente-mensaje">Mensaje</label>
+          <textarea
+            id="asistente-mensaje"
+            className={estilos.campo}
+            rows={2}
+            maxLength={4000}
+            value={texto}
+            disabled={bloqueado}
+            placeholder={bloqueado ? 'Disponible cuando se conecte el asistente' : 'Escribe tu pregunta'}
+            onChange={e => setTexto(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); enviar(); } }}
+          />
+          <button type="submit" className={estilos.enviar} disabled={bloqueado || ocupado || !texto.trim()}>{ocupado ? 'Respondiendo…' : 'Enviar'}</button>
+        </form>
       </aside>
     </div>
   );
+}
+
+// Respuesta del asistente con negritas, listas y párrafos. Se arma con elementos de React (nunca HTML en crudo).
+function TextoFormateado({ texto }) {
+  const linea = (partes, k) => partes.map((p, i) => (p.negrita ? <strong key={`${k}-${i}`}>{p.texto}</strong> : <span key={`${k}-${i}`}>{p.texto}</span>));
+  return bloquesDeTexto(texto).map((b, i) => {
+    if (b.tipo === 'p') return <p key={i} className={estilos.parrafo}>{linea(b.items[0], i)}</p>;
+    const Lista = b.tipo === 'ol' ? 'ol' : 'ul';
+    return <Lista key={i} className={b.tipo === 'ol' ? `${estilos.lista} ${estilos.ol}` : estilos.lista}>{b.items.map((it, j) => <li key={j}>{linea(it, `${i}-${j}`)}</li>)}</Lista>;
+  });
+}
+
+function pathnameLegible(ruta) {
+  return migas(ruta, { desarrollo: process.env.NODE_ENV !== 'production' }).map(m => m.nombre).join(' › ') || 'Cerebro de Lu';
 }

@@ -77,7 +77,7 @@ export function ProximasAcciones({ alertas }) {
         </ol>
       )}
       {alertas.estado === 'datos' && alertas.fuentesConError.length > 0 && <BloqueEstado estado="error_lectura" compacto detalle={`No se pudo leer: ${alertas.fuentesConError.join(', ')}.`} />}
-      <p className={estilos.nota}>Reglas con datos reales, no IA. El asistente con IA aún no está conectado.</p>
+      <p className={estilos.nota}>Estas sugerencias son reglas con tus datos reales, no IA. Para preguntar con IA, abre el asistente.</p>
     </Card>
   );
 }

@@ -124,7 +124,8 @@
 }
 
 .compositor {
-  margin-top: auto;
+  padding: var(--ds-space-3) var(--ds-space-4) var(--ds-space-4);
+  border-top: 1px solid var(--ds-border);
   display: flex;
   flex-direction: column;
   gap: var(--ds-space-2);
@@ -136,27 +137,84 @@
   background: var(--ds-bg-2);
   border: 1px solid var(--ds-border-strong);
   border-radius: var(--ds-radius-md);
+  color: var(--ds-text);
+  font: inherit;
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-text-md);
+  resize: none;
+}
+
+.campo:disabled { color: var(--ds-text-2); cursor: not-allowed; }
+
+.enviar,
+.primario,
+.secundario {
+  min-height: 44px;
+  padding: 0 var(--ds-space-5);
+  border-radius: var(--ds-radius-md);
+  font: inherit;
+  font-family: var(--ds-font-body);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.enviar,
+.primario { background: var(--ds-primary); border: 1px solid var(--ds-primary); color: var(--ds-on-primary); }
+.enviar { align-self: flex-end; }
+.secundario { background: transparent; border: 1px solid var(--ds-border-strong); color: var(--ds-text); }
+.enviar:disabled { background: var(--ds-bg-2); border-color: var(--ds-border); color: var(--ds-text-2); cursor: not-allowed; }
+.enviar:focus-visible,
+.primario:focus-visible,
+.secundario:focus-visible,
+.memoriaBoton:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 2px; }
+
+.vacio { display: flex; flex-direction: column; gap: var(--ds-space-3); }
+
+.mensajes { display: flex; flex-direction: column; gap: var(--ds-space-3); }
+
+.mio,
+.suyo {
+  max-width: 92%;
+  padding: var(--ds-space-3) var(--ds-space-4);
+  border-radius: var(--ds-radius-md);
+  font-size: var(--ds-text-md);
+  line-height: var(--ds-leading-normal);
+  overflow-wrap: anywhere;
+}
+
+.mio { white-space: pre-wrap; align-self: flex-end; background: var(--ds-primary-soft); border: 1px solid var(--ds-border); }
+.suyo { align-self: flex-start; background: var(--ds-bg-2); border: 1px solid var(--ds-border); }
+.pensando,
+.estado { color: var(--ds-text-2); font-size: var(--ds-text-sm); margin: 0; }
+
+.propuesta {
+  padding: var(--ds-space-3) var(--ds-space-4);
+  background: var(--ds-warning-soft);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md);
+}
+
+.acciones { display: flex; gap: var(--ds-space-2); margin-top: var(--ds-space-3); }
+.error { margin: 0; padding: var(--ds-space-3); color: var(--ds-danger); background: var(--ds-danger-soft); border-radius: var(--ds-radius-md); font-size: var(--ds-text-sm); }
+.aviso { margin: 0; color: var(--ds-text-2); font-size: var(--ds-text-xs); }
+
+.memoria { padding: 0 var(--ds-space-4); border-top: 1px solid var(--ds-border); }
+.memoriaBoton {
+  min-height: 44px;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
   color: var(--ds-text-2);
   font: inherit;
   font-family: var(--ds-font-body);
   font-size: var(--ds-text-sm);
-  resize: none;
-  cursor: not-allowed;
+  text-align: left;
+  cursor: pointer;
 }
-
-.enviar {
-  align-self: flex-end;
-  min-height: 40px;
-  padding: 0 var(--ds-space-5);
-  background: var(--ds-bg-2);
-  border: 1px solid var(--ds-border);
-  border-radius: var(--ds-radius-md);
-  color: var(--ds-text-2);
-  font: inherit;
-  font-family: var(--ds-font-body);
-  font-weight: 600;
-  cursor: not-allowed;
-}
+.memoriaLista { list-style: none; margin: 0 0 var(--ds-space-3); padding: 0; display: flex; flex-direction: column; gap: var(--ds-space-2); max-height: 160px; overflow-y: auto; }
+.recuerdo { display: flex; align-items: center; justify-content: space-between; gap: var(--ds-space-3); margin: 0; padding: 0; border: 0; font-size: var(--ds-text-sm); }
+.vacioMemoria { margin: 0; padding: 0; border: 0; color: var(--ds-text-2); font-size: var(--ds-text-sm); }
 
 /* Móvil: hoja modal desde abajo */
 .modal {
@@ -178,3 +236,12 @@
   border-radius: var(--ds-radius-lg) var(--ds-radius-lg) 0 0;
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+.parrafo { margin: 0; }
+.parrafo + .parrafo,
+.parrafo + .lista,
+.lista + .parrafo,
+.lista + .lista { margin-top: var(--ds-space-2); }
+.lista { margin: 0; padding-left: var(--ds-space-5); list-style: disc; }
+.ol { list-style: decimal; }
+.lista li { display: list-item; list-style: inherit; margin: 0; padding: 0; border: 0; }

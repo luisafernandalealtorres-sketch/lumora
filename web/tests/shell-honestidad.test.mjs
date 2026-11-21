@@ -7,12 +7,13 @@ import { join } from 'node:path';
 const RAIZ = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const leer = r => readFileSync(join(RAIZ, r), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
-test('el asistente no simula respuestas ni acciones', () => {
+test('el asistente no simula respuestas: todo viene del servidor y se bloquea si no está conectado', () => {
   const js = leer('components/shell/AssistantDrawer.js');
-  assert.ok(!/setTimeout|setInterval|fetch\(|Math\.random|messages|respuesta:/.test(js));
-  assert.match(js, /<textarea[^>]*\bdisabled\b/, 'el campo de mensaje debe estar deshabilitado');
-  assert.match(js, /disabled=\{!puedeEnviar\(ESTADO_INICIAL\)\}/, 'enviar depende del estado');
-  assert.match(js, /estadoAsistente\(ESTADO_INICIAL\)/);
+  assert.ok(!/setTimeout|setInterval|Math\.random|respuesta:/.test(js), 'sin respuestas inventadas');
+  assert.match(js, /fetch\('\/api\/asistente'/);
+  assert.match(js, /disabled=\{bloqueado\}/, 'sin conexión el campo se bloquea');
+  assert.match(js, /estadoDeError\(/, 'el estado sale del error real');
+  assert.match(js, /mensajeDeError\(/, 'no se muestra el texto crudo del error');
 });
 
 test('el filtro de frente avisa cuando la pantalla no lo aplica', () => {

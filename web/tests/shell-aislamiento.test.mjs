@@ -20,6 +20,7 @@ test('hay archivos del shell que revisar', () => {
 
 test('ningún archivo del shell consulta datos ni hace peticiones', () => {
   for (const f of archivosShell) {
+    if (f === 'AssistantDrawer.js') continue;   // el asistente es la excepción acotada: ver la prueba siguiente
     const js = sinComentarios(leer(`components/shell/${f}`));
     assert.ok(!/\.from\(|\.rpc\(|\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(js), `${f} contiene una operación de datos`);
     assert.ok(!/\bfetch\(|XMLHttpRequest|axios/.test(js), `${f} hace una petición de red`);
@@ -30,12 +31,20 @@ test('solo useSalir usa Supabase, y solo para cerrar sesión', () => {
   for (const f of archivosShell) {
     const js = sinComentarios(leer(`components/shell/${f}`));
     const usa = /lib\/supabase|@supabase|createClient/.test(js);
-    assert.equal(usa, f === 'useSalir.js', `${f}: uso de Supabase inesperado`);
+    assert.equal(usa, f === 'useSalir.js' || f === 'AssistantDrawer.js', `${f}: uso de Supabase inesperado`);
   }
   const salir = sinComentarios(leer('components/shell/useSalir.js'));
   assert.match(salir, /auth\.signOut\(\)/);
   assert.match(salir, /router\.push\('\/login'\)/);
   assert.match(salir, /router\.refresh\(\)/);
+});
+
+test('el asistente solo habla con /api/asistente y solo toca su propia memoria', () => {
+  const js = sinComentarios(leer('components/shell/AssistantDrawer.js'));
+  assert.deepEqual([...js.matchAll(/fetch\('([^']+)'/g)].map(m => m[1]), ['/api/asistente']);
+  const tablas = [...js.matchAll(/\.from\('([^']+)'\)/g)].map(m => m[1]);
+  assert.ok(tablas.length > 0 && tablas.every(t => t === 'asistente_memoria'), 'solo asistente_memoria');
+  assert.ok(!/\.update\(|\.upsert\(|\.rpc\(/.test(js));
 });
 
 test('la lógica de dominio del shell es pura: sin React, sin Supabase, sin red', () => {

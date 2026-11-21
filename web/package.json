@@ -10,6 +10,7 @@
     "test:integracion": "node --no-warnings --test tests/integracion-local/temporizador.integ.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.0",
     "next": "^14.2.0",
